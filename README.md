@@ -1,5 +1,3 @@
-The SEV Framework can help you to develop robust business applications with .NET Framework.
-
 The SEV Framework has a layered architecture :
  - UI Model layer;
  - Application or Service layer;
