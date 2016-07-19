@@ -111,7 +111,12 @@ namespace SEV.Domain.Repository
         private LambdaExpression RebuildOrderBy(Expression<Func<TEntity, object>> orderBy)
         {
             var param = Expression.Parameter(typeof(TEntity), "x");
-            var member = ((MemberExpression)((UnaryExpression)orderBy.Body).Operand).Member;
+            var operandExpr = (MemberExpression)((UnaryExpression)orderBy.Body).Operand;
+            var member = operandExpr.Member;
+            if (typeof(TEntity).GetProperty(member.Name) == null)
+            {
+                member = ((MemberExpression)operandExpr.Expression).Member;
+            }
             return Expression.Lambda(Expression.MakeMemberAccess(param, member), param);
         }
 
