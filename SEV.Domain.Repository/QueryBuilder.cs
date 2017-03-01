@@ -90,10 +90,10 @@ namespace SEV.Domain.Repository
             {
                 return ApplyFirstOrderBy<DateTime?>(query, lambda, byDescending);
             }
-            //if (lambdaType == typeof(Guid))
-            //{
-            //    return ApplyFirstOrderBy<Guid>(query, lambda, byDescending);
-            //}
+            if (lambdaType == typeof(Guid))
+            {
+                return ApplyFirstOrderBy<Guid>(query, lambda, byDescending);
+            }
             if (lambdaType == typeof(decimal))
             {
                 return ApplyFirstOrderBy<decimal>(query, lambda, byDescending);
@@ -155,10 +155,10 @@ namespace SEV.Domain.Repository
             {
                 return ApplyOrderBy<DateTime?>(query, lambda, byDescending);
             }
-            //if (lambdaType == typeof(Guid))
-            //{
-            //    return ApplyOrderBy<Guid>(query, lambda, byDescending);
-            //}
+            if (lambdaType == typeof(Guid))
+            {
+                return ApplyOrderBy<Guid>(query, lambda, byDescending);
+            }
             if (lambdaType == typeof(decimal))
             {
                 return ApplyOrderBy<decimal>(query, lambda, byDescending);
