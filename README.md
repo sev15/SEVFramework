@@ -12,6 +12,5 @@ The SEV Framework is based on the use of the Dependency Inversion S.O.L.I.D prin
 
 New features of SEV Framework currently in production :
 
-- Generate UI models with T4 templates;
 - Support asynchronous queries;
 - Support business rules and business processes.
