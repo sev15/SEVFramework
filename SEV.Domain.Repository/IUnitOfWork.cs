@@ -6,7 +6,7 @@ namespace SEV.Domain.Repository
     {
         IRepository<TEntity> Repository<TEntity>() where TEntity : Entity;
         IRelationshipManager<TEntity> RelationshipManager<TEntity>() where TEntity : Entity;
-        DomainQueryProvider DomainQueryProvider();
+        IDomainQueryHandler<TResult> CreateDomainQueryHandler<TResult>(string queryName);
         void SaveChanges();
     }
 }

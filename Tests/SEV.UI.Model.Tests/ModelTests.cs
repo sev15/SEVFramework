@@ -36,58 +36,24 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void WhenCreateModelObject_ThenShouldNotInitializeParentEntityExpression()
+        public void WhenCallGetIncludes_ThenShouldReturnEmptyList()
         {
-            Assert.That(m_model.ParentEntityExpression, Is.Null);
-        }
-
-        [Test]
-        public void GivenParentEntityExpressionIsNotInitialized_WhenCallGetDefaultIncludes_ThenShouldReturnEmptyList()
-        {
-            var result = m_model.GetDefaultIncludes();
+            var result = m_model.GetIncludes();
 
             Assert.That(result.Any(), Is.False);
         }
 
-        [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallGetDefaultIncludes_ThenShouldReturnListContainingParentEntityExpression()
-        {
-            m_model = new TestModel(m_queryServiceMock.Object, true);
-
-            var result = m_model.GetDefaultIncludes();
-
-            Assert.That(result.Single(), Is.SameAs(m_model.ParentEntityExpression));
-        }
-
         private class TestModel : Model<TestEntity>
         {
-            public TestModel(IQueryService queryService, bool setParent = false) : base(queryService)
+            public TestModel(IQueryService queryService) : base(queryService)
             {
-                if (setParent)
-                {
-                    base.ParentEntityExpression = x => x.ParentEntity;
-                }
             }
 
-            public new bool IsInitialized
-            {
-                get { return base.IsInitialized; }
-            }
+            public new bool IsInitialized => base.IsInitialized;
 
-            public new Expression<Func<TestEntity, object>> ParentEntityExpression
-            {
-                get { return base.ParentEntityExpression; }
-            }
+            public new IQueryService QueryService => base.QueryService;
 
-            public new IQueryService QueryService
-            {
-                get { return base.QueryService; }
-            }
-
-            public new List<Expression<Func<TestEntity, object>>> GetDefaultIncludes()
-            {
-                return base.GetDefaultIncludes();
-            }
+            public new List<Expression<Func<TestEntity, object>>> GetIncludes() => base.GetIncludes();
 
             public override bool IsValid { get { throw new NotImplementedException(); } }
             public override void Load(string id) { throw new NotImplementedException(); }
@@ -97,7 +63,7 @@ namespace SEV.UI.Model.Tests
     public class TestEntity : Entity
     {
         public string Value { get; set; }
-        public TestEntity ParentEntity { get; set; }
+        public TestEntity Parent { get; set; }
         public ICollection<TestEntity> Children { get; set; }
     }
 }

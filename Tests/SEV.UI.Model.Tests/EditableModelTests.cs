@@ -197,7 +197,7 @@ namespace SEV.UI.Model.Tests
         [Test]
         public void GivenModelIsValid_WhenCallSetReference_ThenShouldInitializeModelEntityPropertyWithValueFromSuppliedReference()
         {
-            m_entity.ParentEntity = new TestEntity { Id = 12};
+            m_entity.Parent = new TestEntity { Id = 12};
             m_model.SetEntity(m_entity);
             var newParent = new TestModel(m_queryServiceMock.Object);
             var newParentEntity = new TestEntity { Id = 23 };
@@ -222,17 +222,15 @@ namespace SEV.UI.Model.Tests
                 get { return base.CommandService; }
             }
 
-            private ITestModel m_parent;
             public ITestModel Parent
             {
                 get
                 {
-                    return m_parent ?? (m_parent = GetReference<ITestModel, TestEntity>(x => x.ParentEntity));
+                    return GetReference<ITestModel, TestEntity>();
                 }
                 set
                 {
-                    m_parent = value;
-                    SetReference(value, x => x.ParentEntity);
+                    SetReference<ITestModel, TestEntity>(value);
                 }
             }
         }

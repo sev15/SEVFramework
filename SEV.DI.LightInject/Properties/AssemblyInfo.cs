@@ -11,14 +11,14 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("SEV")]
 [assembly: AssemblyProduct("SEV.DI.LightInject")]
-[assembly: AssemblyCopyright("Copyright © SEV 2016")]
+[assembly: AssemblyCopyright("Copyright © SEV 2017")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 
 [assembly: Guid("d61790e8-7784-4552-9f8d-15a58bc47446")]
-[assembly: AssemblyVersion("0.1.0.2")]
-[assembly: AssemblyFileVersion("0.1.0.2")]
+[assembly: AssemblyVersion("0.4.0.0")]
+[assembly: AssemblyFileVersion("0.4.0.0")]
 
 [assembly: InternalsVisibleTo("SEV.DI.LightInject.Tests")]

@@ -1,4 +1,5 @@
-﻿using Microsoft.Practices.ServiceLocation;
+﻿using System;
+using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
@@ -46,27 +47,43 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void WhenCallDomainQueryProvider_ThenShouldCallGetInstanceOfServiceLocatorForIDomainQueryHandlerFactory()
+        public void WhenCallDomainQueryProvider_ThenShouldCallGetInstanceWithKeyOfServiceLocatorForIDomainQueryHandlerFactory()
         {
-            var queryHandlerFactoryMock = new Mock<IDomainQueryHandlerFactory>();
+            const string queryName = "testQueryName";
+            var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();
             var serviceLocatorMock = new Mock<IServiceLocator>();
-            serviceLocatorMock.Setup(x => x.GetInstance<IDomainQueryHandlerFactory>())
-                              .Returns(queryHandlerFactoryMock.Object);
+            serviceLocatorMock.Setup(x => x.GetInstance<IDomainQueryHandler>(queryName)).Returns(queryHandlerMock.Object);
             ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
 
-            m_unitOfWork.DomainQueryProvider();
+            m_unitOfWork.CreateDomainQueryHandler<bool>(queryName);
 
-           serviceLocatorMock.Verify(x => x.GetInstance<IDomainQueryHandlerFactory>(), Times.Once);
+            serviceLocatorMock.Verify(x => x.GetInstance<IDomainQueryHandler>(queryName), Times.Once);
         }
 
         [Test]
-        public void WhenCallDomainQueryProvider_ThenShouldReturnInstanceOfDomainQueryProvider()
+        public void GivenTypeOfQueryResultIsRight_WhenCallDomainQueryProvider_ThenShouldReturnDomainQueryHandler()
         {
-            ServiceLocator.SetLocatorProvider(() => new Mock<IServiceLocator>().Object);
+            const string queryName = "testQueryName";
+            var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();
+            var serviceLocatorMock = new Mock<IServiceLocator>();
+            serviceLocatorMock.Setup(x => x.GetInstance<IDomainQueryHandler>(queryName)).Returns(queryHandlerMock.Object);
+            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
 
-            var result = m_unitOfWork.DomainQueryProvider();
+            var result = m_unitOfWork.CreateDomainQueryHandler<bool>(queryName);
 
-            Assert.That(result, Is.InstanceOf<DomainQueryProvider>());
+            Assert.That(result, Is.SameAs(queryHandlerMock.Object));
+        }
+
+        [Test]
+        public void GivenTypeOfQueryResultIsWrong_WhenCallDomainQueryProvider_ThenShouldThrowInvalidOperationException()
+        {
+            const string queryName = "testQueryName";
+            var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();
+            var serviceLocatorMock = new Mock<IServiceLocator>();
+            serviceLocatorMock.Setup(x => x.GetInstance<IDomainQueryHandler>(queryName)).Returns(queryHandlerMock.Object);
+            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
+
+            Assert.That(() => m_unitOfWork.CreateDomainQueryHandler<int>(queryName), Throws.InstanceOf<InvalidOperationException>());
         }
 
         [Test]

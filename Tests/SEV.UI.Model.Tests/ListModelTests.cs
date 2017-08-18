@@ -28,7 +28,7 @@ namespace SEV.UI.Model.Tests
         {
             InitMocks();
 
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
+            m_model = new TestListModel(m_queryServiceMock.Object);
         }
 
         private void InitMocks()
@@ -126,10 +126,29 @@ namespace SEV.UI.Model.Tests
             Assert.Throws<InvalidOperationException>(() => m_model.Load("id"));
         }
 
+
         [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallLoadById_ThenShouldCallGetInstanceOfServiceLocatorForIQueryForTestEntity()
+        public void GivenParentEntityExpressionIsInitialized_WhenCallGetIncludes_ThenShouldReturnListContainingParentEntityExpression()
         {
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object, true);
+            m_model = new TestListModel(m_queryServiceMock.Object, true);
+
+            var result = m_model.GetIncludes();
+
+            Assert.That(result.Single(), Is.SameAs(m_model.ParentEntityExpression));
+        }
+
+        [Test]
+        public void GivenParentEntityExpressionIsInitializedButParentEntityFilterProviderIsNotInitialized_WhenCallLoadById_ThenShouldThrowInvalidOperationException()
+        {
+            m_model = new TestListModel(m_queryServiceMock.Object, true);
+
+            Assert.Throws<InvalidOperationException>(() => m_model.Load("id"));
+        }
+
+        [Test]
+        public void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadById_ThenShouldCallGetInstanceOfServiceLocatorForIQueryForTestEntity()
+        {
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>())
                                 .Returns(new Mock<IQuery<TestEntity>>().Object);
 
@@ -139,9 +158,9 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallLoadById_ThenShouldCallCreateFilterOfParentEntityFilterProviderForTestEntity()
+        public void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadById_ThenShouldCallCreateFilterOfParentEntityFilterProviderForTestEntity()
         {
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object, true);
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>())
                                 .Returns(new Mock<IQuery<TestEntity>>().Object);
             const string id = "id";
@@ -153,9 +172,9 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallLoadById_ThenShouldCallFindByQueryOfQueryService()
+        public void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadById_ThenShouldCallFindByQueryOfQueryService()
         {
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object, true);
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             var queryMock = new Mock<IQuery<TestEntity>>();
             m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>()).Returns(queryMock.Object);
 
@@ -165,9 +184,9 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsInitializedAndFindByQuerySucceeds_WhenCallLoadById_ThenShouldCallGetInstanceOfServiceLocatorForTestModel()
+        public void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitializedAndFindByQuerySucceeds_WhenCallLoadById_ThenShouldCallGetInstanceOfServiceLocatorForTestModel()
         {
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object, true);
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             var queryMock = new Mock<IQuery<TestEntity>>();
             m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>()).Returns(queryMock.Object);
             m_queryServiceMock.Setup(x => x.FindByQuery(queryMock.Object)).Returns(new List<TestEntity> { m_entity });
@@ -178,9 +197,9 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallLoadById_ThenShouldInitializeModelEntity()
+        public void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadById_ThenShouldInitializeModelItems()
         {
-            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object, true);
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             var queryMock = new Mock<IQuery<TestEntity>>();
             m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>()).Returns(queryMock.Object);
             m_queryServiceMock.Setup(x => x.FindByQuery(queryMock.Object)).Returns(new List<TestEntity> { m_entity });
@@ -193,14 +212,23 @@ namespace SEV.UI.Model.Tests
 
         private class TestListModel : ListModel<ITestModel, TestEntity>, ITestListModel
         {
-            public TestListModel(IQueryService queryService, IParentEntityFilterProvider filterProvider,
-                bool setParent = false) : base(queryService, filterProvider)
+            public TestListModel(IQueryService queryService, bool setParent = false) : base(queryService)
             {
                 if (setParent)
                 {
-                    ParentEntityExpression = x => x.ParentEntity;
+                    base.ParentEntityExpression = x => x.Parent;
                 }
             }
+
+            public TestListModel(IQueryService queryService, IParentEntityFilterProvider filterProvider)
+                : base(queryService, filterProvider)
+            {
+                base.ParentEntityExpression = x => x.Parent;
+            }
+
+            public new Expression<Func<TestEntity, object>> ParentEntityExpression => base.ParentEntityExpression;
+
+            public new List<Expression<Func<TestEntity, object>>> GetIncludes() => base.GetIncludes();
         }
     }
 

@@ -16,7 +16,7 @@ namespace SEV.UI.Model.Tests
         [SetUp]
         public void Init()
         {
-            m_parentExpression = x => x.ParentEntity;
+            m_parentExpression = x => x.Parent;
 
             m_filterProvider = new ParentEntityFilterProvider();
         }

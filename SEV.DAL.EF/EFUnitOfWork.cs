@@ -24,11 +24,15 @@ namespace SEV.DAL.EF
             return new EFRelationshipManager<TEntity>(m_context);
         }
 
-        public DomainQueryProvider DomainQueryProvider()
+        public IDomainQueryHandler<TResult> CreateDomainQueryHandler<TResult>(string queryName)
         {
-            var factory = ServiceLocator.Current.GetInstance<IDomainQueryHandlerFactory>();
+            var handler = ServiceLocator.Current.GetInstance<IDomainQueryHandler>(queryName);
+            if (handler is IDomainQueryHandler<TResult>)
+            {
+                return (IDomainQueryHandler<TResult>)handler;
+            }
 
-            return new DomainQueryProvider(factory);
+            throw new InvalidOperationException($"Invalid result type for '{queryName}' query");
         }
 
         public void SaveChanges()

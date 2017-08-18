@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Model", "SEV.Domain.Model\SEV.Domain.Model.csproj", "{530C10E0-F51F-4A8C-9821-C5C9366BE728}"
 EndProject
@@ -68,6 +68,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.FWK.Service.Tests", "Tests\SEV.FWK.Service.Tests\SEV.FWK.Service.Tests.csproj", "{CD868A78-CDBF-463A-A6C8-2C3C24E3CBA4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.FWK.UI.Model.Tests", "Tests\SEV.FWK.UI.Model.Tests\SEV.FWK.UI.Model.Tests.csproj", "{23B3909D-DC81-42C8-9AE7-E0E8C4647EF2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "T4 templates", "T4 templates", "{B1AAF0F4-CDF9-4292-B8D2-CC2042B47542}"
+	ProjectSection(SolutionItems) = preProject
+		T4 templates\UIModelContractTemplate.tt = T4 templates\UIModelContractTemplate.tt
+		T4 templates\UIModelTemplate.tt = T4 templates\UIModelTemplate.tt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -202,5 +208,6 @@ Global
 		{B0F873D8-E3BC-4B5D-8A02-F434E8006385} = {C9A0A313-0291-495A-AFA0-C2E9229E5FF4}
 		{CD868A78-CDBF-463A-A6C8-2C3C24E3CBA4} = {C34A0EAF-61CD-4CB5-B0C9-71EFD1983F4E}
 		{23B3909D-DC81-42C8-9AE7-E0E8C4647EF2} = {C34A0EAF-61CD-4CB5-B0C9-71EFD1983F4E}
+		{B1AAF0F4-CDF9-4292-B8D2-CC2042B47542} = {1F0CD0CA-C0D9-4D8D-A6FE-0E7938A3F90E}
 	EndGlobalSection
 EndGlobal

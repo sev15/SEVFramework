@@ -10,7 +10,7 @@ namespace SEV.Service
 {
     internal class QueryService : Service, IQueryService
     {
-        public QueryService(IUnitOfWorkFactory session) : base(session)
+        public QueryService(IUnitOfWorkFactory factory) : base(factory)
         {
         }
 

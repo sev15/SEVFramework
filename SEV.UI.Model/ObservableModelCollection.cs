@@ -33,9 +33,14 @@ namespace SEV.UI.Model
             }
             if (args.Action == NotifyCollectionChangedAction.Add)
             {
-                foreach (var addedModel in args.NewItems)
+                foreach (var item in args.NewItems)
                 {
-                    var addedModelEntity = ((SingleModel<TEntity>)addedModel).ToEntity();
+                    var addedModel = (SingleModel<TEntity>)item;
+                    if (!addedModel.IsValid)
+                    {
+                        throw new System.InvalidOperationException(Resources.InsertInvalidModelMsg);
+                    }
+                    var addedModelEntity = addedModel.ToEntity();
                     m_entityCollection.Add(addedModelEntity);
                 }
             }

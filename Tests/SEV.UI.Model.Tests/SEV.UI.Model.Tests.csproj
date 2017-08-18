@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModelAttributesSetterPerformanceTests.cs" />
+    <Compile Include="NotifyPropertyChangedTests.cs" />
     <Compile Include="EditableModelTests.cs" />
     <Compile Include="ListModelTests.cs" />
     <Compile Include="ObservableModelCollectionTests.cs" />

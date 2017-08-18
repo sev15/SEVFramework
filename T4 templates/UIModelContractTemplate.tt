@@ -1,0 +1,121 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(ProjectDir)\bin\SEV.Samples.Entities.dll" #>
+<#@ assembly name="$(ProjectDir)\bin\SEV.Domain.Model.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="SEV.Samples.Entities" #>
+<#@ import namespace="System.CodeDom" #>
+<#@ import namespace="Microsoft.CSharp" #>
+<#@ output extension=".cs" #>
+<#
+  foreach (var modelType in GetModelTypes())
+  {
+	var proporties =  modelType.GetProperties();
+
+    var simpleProperties = proporties.Where(p => p.PropertyType.IsValueType || p.PropertyType == typeof(string)).ToList();
+
+    var referenceProperties = proporties.Where(p => p.PropertyType.IsSubclassOf(typeof(SEV.Domain.Model.Entity))).ToList();
+
+    var collectionProperties = proporties.Where(p => p.PropertyType.IsGenericType &&
+													 p.PropertyType.Name.StartsWith("ICollection")).ToList();
+
+#>namespace SEV.Samples.UI.Model.Contract
+{
+    public interface I<#=modelType.Name#>Model : SEV.UI.Model.Contract.IEditableModel
+    {
+<#
+    GenerateSimpleProperties(simpleProperties);
+	GenerateReferenceProperties(referenceProperties);
+	GenerateCollectionProperties(collectionProperties);
+#>
+    }
+}
+<#  
+    SaveGeneratedCodeAsFile("I" + modelType.Name + "Model.g.cs");
+  }
+#>
+
+<#+ 
+  private IEnumerable<Type> GetModelTypes()
+  {
+    string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "bin", "SEV.Samples.Entities.dll");
+
+	return Assembly.LoadFrom(assemblyPath).GetTypes();
+  }
+
+  private void SaveGeneratedCodeAsFile(string fileName)
+  {
+    string dir = Path.GetDirectoryName(Host.TemplateFile);
+  
+    string outputFilePath = Path.Combine(dir, fileName);
+    File.WriteAllText(outputFilePath, GenerationEnvironment.ToString()); 
+ 
+    GenerationEnvironment.Clear();
+  }
+
+  private string GetTypeName(Type type)
+  {
+	if (type.IsGenericType && type.Name.StartsWith("Nullable"))
+	{
+	  return GetCSharpTypeName(type.GenericTypeArguments[0]) + "?";
+	}
+	else
+	{
+	  return GetCSharpTypeName(type);
+	}
+  }
+
+  private string GetCSharpTypeName(Type type)
+  {
+    string typeName;
+
+    using (var provider = new CSharpCodeProvider())
+    {
+      var typeRef = new CodeTypeReference(type);
+      typeName = provider.GetTypeOutput(typeRef);
+    }
+
+	return typeName;
+  }
+
+  private void GenerateSimpleProperties(IEnumerable<PropertyInfo> properties)
+  {
+    foreach (var property in properties.Where(x => !x.Name.Contains("Id")))
+    {
+      var propertyType = GetTypeName(property.PropertyType);
+      var propertyName= property.Name;
+#>
+        <#=propertyType#> <#=propertyName#> { get; set; }
+<#+ 
+    }
+  }
+
+  private void GenerateReferenceProperties(IEnumerable<PropertyInfo> properties)
+  {
+    foreach (var property in properties)
+    {
+      var propertyType = property.PropertyType.Name;
+      var propertyName= property.Name;
+#>
+        I<#= propertyType #>Model <#= propertyName #> { get; set; }
+<#+   
+    }
+  }
+
+  private void GenerateCollectionProperties(IEnumerable<PropertyInfo> properties)
+  {
+    foreach (var property in properties)
+    {
+      var itemType = property.PropertyType.GenericTypeArguments[0].Name;
+      var propertyName= property.Name;
+#>
+        System.Collections.Generic.IList<I<#= itemType #>Model> <#= propertyName #> { get; }
+<#+  
+    }
+  }
+#>

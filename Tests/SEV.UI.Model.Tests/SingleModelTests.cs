@@ -93,7 +93,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsNotInitialized_WhenCallLoad_ThenShouldCallFindByIdOfQueryServiceWithProvidedId()
+        public void WhenCallLoad_ThenShouldCallFindByIdOfQueryServiceWithProvidedId()
         {
             string id = m_entity.EntityId;
 
@@ -103,7 +103,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsInitialized_WhenCallLoad_ThenShouldCallFindByIdOfQueryServiceWithProvidedIdAndDefaultIncludes()
+        public void GivenGetIncludesIsOverriden_WhenCallLoad_ThenShouldCallFindByIdOfQueryServiceWithProvidedIdAndSpecifiedIncludes()
         {
             m_model = new TestModel(m_queryServiceMock.Object, true);
             string id = m_entity.EntityId;
@@ -149,8 +149,7 @@ namespace SEV.UI.Model.Tests
         [Test]
         public void GivenModelIsValid_WhenCallGetReference_ThenShouldCallGetInstanceOfServiceLocatorForTestModel()
         {
-            var reference = new TestEntity();
-            m_entity.ParentEntity = reference;
+            m_entity.Parent = new TestEntity();
             m_model.SetEntity(m_entity);
 
             var result = m_model.Parent;
@@ -163,7 +162,7 @@ namespace SEV.UI.Model.Tests
         public void GivenModelIsValid_WhenCallGetReference_ThenShouldReturnReferenceFromEntityTransformedToModel()
         {
             var reference = new TestEntity();
-            m_entity.ParentEntity = reference;
+            m_entity.Parent = reference;
             m_model.SetEntity(m_entity);
 
             var result = m_model.Parent;
@@ -212,39 +211,29 @@ namespace SEV.UI.Model.Tests
 
     internal class TestModel : SingleModel<TestEntity>, ITestModel
     {
-        public TestModel(IQueryService queryService, bool setParent = false)
-            : base(queryService)
+        private readonly bool m_loadParent;
+
+        public TestModel(IQueryService queryService, bool loadParent = false) : base(queryService)
         {
-            if (setParent)
-            {
-                ParentEntityExpression = x => x.ParentEntity;
-            }
+            m_loadParent = loadParent;
         }
 
-        public string Value
-        {
-            get
-            {
-                return GetValue(x => x.Value);
-            }
-        }
+        public string Value => GetValue(x => x.Value);
 
-        private ITestModel m_parent;
-        public ITestModel Parent
-        {
-            get
-            {
-                return m_parent ?? (m_parent = GetReference<ITestModel, TestEntity>(x => x.ParentEntity));
-            }
-        }
+        public ITestModel Parent => GetReference<ITestModel, TestEntity>();
 
-        private IList<ITestModel> m_children;
-        public IList<ITestModel> Children
+        public IList<ITestModel> Children => GetCollection<ITestModel, TestEntity>();
+
+        protected override List<Expression<Func<TestEntity, object>>> GetIncludes()
         {
-            get
+            var includes = base.GetIncludes();
+
+            if (m_loadParent)
             {
-                return m_children ?? (m_children = GetCollection<ITestModel, TestEntity>(x => x.Children));
+                includes.Add(x => x.Parent);
             }
+
+            return includes;
         }
     }
 }

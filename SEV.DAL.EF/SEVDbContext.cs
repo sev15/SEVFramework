@@ -52,7 +52,7 @@ namespace SEV.DAL.EF
                                         (re is EntityReference) && re.RelationshipName.EndsWith(relationshipFilter));
             if (entityRef == null)
             {
-                throw new ArgumentException("Invalid argument", "navigationProperty");
+                throw new ArgumentException("Invalid argument", nameof(navigationProperty));
             }
 
             var entityKey = ((EntityReference)entityRef).EntityKey;

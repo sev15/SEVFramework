@@ -1,7 +1,11 @@
 ﻿namespace SEV.Domain.Repository
 {
-    public interface IDomainQueryHandler<out TResult>
+    public interface IDomainQueryHandler
     {
-        TResult Handle(IDomainQuery query);
+    }
+
+    public interface IDomainQueryHandler<out TResult> : IDomainQueryHandler
+    {
+        TResult Handle(System.Collections.Generic.IDictionary<string, dynamic> queryParams);
     }
 }

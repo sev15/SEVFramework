@@ -12,8 +12,6 @@ namespace SEV.UI.Model
     {
         protected bool IsInitialized { get; set; }
 
-        protected Expression<Func<TEntity, object>> ParentEntityExpression { get; set; }
-
         protected IQueryService QueryService { get; private set; }
 
         protected Model(IQueryService queryService)
@@ -22,15 +20,9 @@ namespace SEV.UI.Model
             IsInitialized = false;
         }
 
-        protected virtual List<Expression<Func<TEntity, object>>> GetDefaultIncludes()
+        protected virtual List<Expression<Func<TEntity, object>>> GetIncludes()
         {
-            var includes = new List<Expression<Func<TEntity, object>>>();
-            if (ParentEntityExpression != null)
-            {
-                includes.Add(ParentEntityExpression);
-            }
-
-            return includes;
+            return new List<Expression<Func<TEntity, object>>>();
         }
 
         public abstract bool IsValid { get; }

@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("d56ed47c-e7e7-4590-8414-f61aebaf1faf")]
 
-[assembly: AssemblyVersion("0.1.0.2")]
-[assembly: AssemblyFileVersion("0.1.0.2")]
+[assembly: AssemblyVersion("0.4.0.3")]
+[assembly: AssemblyFileVersion("0.4.0.3")]
 
 [assembly: InternalsVisibleTo("SEV.Domain.Repository.Tests")]

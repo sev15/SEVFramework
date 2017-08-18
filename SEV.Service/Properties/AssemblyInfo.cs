@@ -11,15 +11,15 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("SEV")]
 [assembly: AssemblyProduct("SEV.Service")]
-[assembly: AssemblyCopyright("Copyright © SEV 2016")]
+[assembly: AssemblyCopyright("Copyright © SEV 2017")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 
 [assembly: Guid("6393cb10-73b4-47a6-9b7e-62cf792e637d")]
-[assembly: AssemblyVersion("0.4.0.1")]
-[assembly: AssemblyFileVersion("0.4.0.1")]
+[assembly: AssemblyVersion("0.4.0.3")]
+[assembly: AssemblyFileVersion("0.4.0.3")]
 
 [assembly: InternalsVisibleTo("SEV.Service.Tests")]
 [assembly: InternalsVisibleTo("SEV.Service.DI")]

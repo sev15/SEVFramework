@@ -115,7 +115,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsSpecified_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityWithRequestedIdAttachedToParentEntity()
+        public void GivenParentEntityIsSpecifiedInGetIncludes_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityByRequestedIdWithParentEntity()
         {
             string id = ChildCount.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -130,7 +130,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void GivenDefaultIncludesAreSpecified_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntitiesSpecifiedInDefaultIncludes()
+        public void GivenRelatedEntitiesAreSpecifiedInGetIncludes_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntities()
         {
             string id = ParentId.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -215,7 +215,6 @@ namespace SEV.FWK.UI.Model.Tests
         public TestModel(IQueryService queryService, ICommandService commandService)
             : base(queryService, commandService)
         {
-            ParentEntityExpression = x => x.Parent;
         }
 
         public string Value
@@ -226,44 +225,29 @@ namespace SEV.FWK.UI.Model.Tests
             }
             set
             {
-                Entity.Value = value;
+                SetValue(value);
             }
         }
 
-        private ITestModel m_parent;
         public ITestModel Parent
         {
             get
             {
-                return m_parent ?? (m_parent = GetReference<ITestModel, TestEntity>(x => x.Parent));
+                return GetReference<ITestModel, TestEntity>();
             }
             set
             {
-                m_parent = value;
-                SetReference(value, x => x.Parent);
+                SetReference<ITestModel, TestEntity> (value);
             }
         }
 
-        private IList<ITestModel> m_children;
-        public IList<ITestModel> Children
+        public IList<ITestModel> Children => GetCollection<ITestModel, TestEntity>();
+
+        protected override List<Expression<Func<TestEntity, object>>> GetIncludes()
         {
-            get
-            {
-                return m_children ?? (m_children = GetCollection<ITestModel, TestEntity>(x => x.Children));
-            }
-        }
+            var includes = base.GetIncludes();
 
-        public override void New()
-        {
-            base.New();
-
-            Entity.Children = new List<TestEntity>();
-        }
-
-        protected override List<Expression<Func<TestEntity, object>>> GetDefaultIncludes()
-        {
-            var includes = base.GetDefaultIncludes();
-
+            includes.Add(x => x.Parent);
             includes.Add(x => x.Children);
 
             return includes;

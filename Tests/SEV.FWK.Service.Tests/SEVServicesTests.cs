@@ -301,6 +301,11 @@ namespace SEV.FWK.Service.Tests
 
     public class TestEntity : Entity
     {
+        public TestEntity()
+        {
+            Children = new List<TestEntity>();
+        }
+
         public string Value { get; set; }
         public TestEntity Parent { get; set; }
         public ICollection<TestEntity> Children { get; set; }

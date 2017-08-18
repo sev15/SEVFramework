@@ -46,8 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainQueryProviderTests.cs" />
-    <Compile Include="DomainQueryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryBuilderTests.cs" />
     <Compile Include="RepositoryQueryTests.cs" />

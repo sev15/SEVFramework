@@ -1,54 +1,39 @@
-﻿using System.Web;
-using LightInject;
-using LightInject.Mvc;
+﻿using LightInject;
 using System.Reflection;
 using System.Web.Http;
-using System.Web.Mvc;
-using LightInject.Web;
 
 namespace SEV.DI.Web.LightInject
 {
     public class LightInjectWebConfigurator : IDIContainerWebConfigurator
     {
-        private IDIContainer m_diContainer;
+        private IServiceContainer m_diContainer;
 
         public void SetContainer(IDIContainer container)
         {
-            m_diContainer = container;
+            m_diContainer = (IServiceContainer)container;
+        }
+
+        public void EnableWeb()
+        {
+            (m_diContainer as ServiceContainer).EnablePerWebRequestScope();
         }
 
         public void RegisterForWeb<TService, TImplementation>() where TImplementation : TService
         {
-            var container = (IServiceContainer)m_diContainer;
-            container.Register<TService, TImplementation>(new PerScopeLifetime());
+            m_diContainer.Register<TService, TImplementation>(new PerScopeLifetime());
         }
 
-        public IDependencyResolver CreateDependencyResolver()
+        public void EnableMvc(params Assembly[] assemblies)
         {
-            return new LightInjectMvcDependencyResolver((IServiceContainer)m_diContainer);
+            m_diContainer.RegisterControllers(assemblies);
+            m_diContainer.EnableMvc();
         }
 
-        public void EnableWeb(Assembly controllersAssembly)
+        public void EnableWebApi(HttpConfiguration httpConfiguration, params Assembly[] assemblies)
         {
-            var container = (IServiceContainer)m_diContainer;
-            container.RegisterControllers(controllersAssembly);
-            container.EnableMvc();
-            container.Register<IHttpModule, LightInjectHttpModule>();
-        }
-
-        public void EnableWebApi(Assembly controllersAssembly, HttpConfiguration httpConfiguration)
-        {
-            var container = (IServiceContainer)m_diContainer;
-
-            container.RegisterApiControllers(controllersAssembly);
+            m_diContainer.RegisterApiControllers(assemblies);
             (m_diContainer as ServiceContainer).EnablePerWebRequestScope();
-            container.EnableWebApi(httpConfiguration);
-        }
-
-        public void RegisterApiControllers(Assembly controllersAssembly)
-        {
-            var container = (IServiceContainer)m_diContainer;
-            container.RegisterApiControllers(controllersAssembly);
+            m_diContainer.EnableWebApi(httpConfiguration);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace SEV.Service
 {
     internal class CommandService : Service, ICommandService
     {
-        public CommandService(IUnitOfWorkFactory session) : base(session)
+        public CommandService(IUnitOfWorkFactory factory) : base(factory)
         {
         }
 

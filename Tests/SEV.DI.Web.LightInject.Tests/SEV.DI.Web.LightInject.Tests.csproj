@@ -32,13 +32,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LightInject">
-      <HintPath>..\..\packages\LightInject.4.0.9\lib\net45\LightInject.dll</HintPath>
+      <HintPath>..\..\packages\LightInject.5.0.3\lib\net45\LightInject.dll</HintPath>
     </Reference>
     <Reference Include="LightInject.Mvc">
-      <HintPath>..\..\packages\LightInject.Mvc.1.0.0.4\lib\net45\LightInject.Mvc.dll</HintPath>
+      <HintPath>..\..\packages\LightInject.Mvc.2.0.0\lib\net45\LightInject.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="LightInject.Web">
-      <HintPath>..\..\packages\LightInject.Web.1.0.0.7\lib\net45\LightInject.Web.dll</HintPath>
+      <HintPath>..\..\packages\LightInject.Web.2.0.0\lib\net45\LightInject.Web.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>

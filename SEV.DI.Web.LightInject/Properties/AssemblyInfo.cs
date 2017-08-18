@@ -10,12 +10,12 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany("SEV")]
 [assembly: AssemblyProduct("SEV.DI.Web.LightInject")]
-[assembly: AssemblyCopyright("Copyright © SEV 2016")]
+[assembly: AssemblyCopyright("Copyright © SEV 2017")]
 
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 
 [assembly: Guid("cb81e547-39d2-412f-a63f-009d6fccbaf3")]
-[assembly: AssemblyVersion("0.1.0.1")]
-[assembly: AssemblyFileVersion("0.1.0.1")]
+[assembly: AssemblyVersion("0.4.0.0")]
+[assembly: AssemblyFileVersion("0.4.0.0")]

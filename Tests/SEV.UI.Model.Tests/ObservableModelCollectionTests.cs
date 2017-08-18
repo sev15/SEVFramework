@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SEV.Service.Contract;
 using System.Collections.Generic;
@@ -59,6 +60,15 @@ namespace SEV.UI.Model.Tests
             m_observableCollection.Add(model);
 
             Assert.That(m_entityCollection.Contains(entity), Is.True);
+        }
+
+        [Test]
+        public void GivenModelIsInvalid_WhenAddModel_ThenShouldThrowInvalidOperationException()
+        {
+            var model = new TestModel(m_queryServiceMock.Object);
+
+            Assert.That(() => m_observableCollection.Add(model),
+                Throws.InstanceOf<InvalidOperationException>().With.Message.EqualTo(Resources.InsertInvalidModelMsg));
         }
 
         [Test]
