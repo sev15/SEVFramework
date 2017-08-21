@@ -136,6 +136,51 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
+        public async void WhenCallLoadAsync_ThenShouldCallFindByIdOfQueryServiceWithProvidedId()
+        {
+            string id = m_entity.EntityId;
+
+            await m_model.LoadAsync(id);
+
+            m_queryServiceMock.Verify(x => x.FindByIdAsync<TestEntity>(id), Times.Once);
+        }
+
+        [Test]
+        public async void GivenGetIncludesIsOverriden_WhenCallLoadAsync_ThenShouldCallFindByIdAsyncOfQueryServiceWithProvidedIdAndSpecifiedIncludes()
+        {
+            m_model = new TestModel(m_queryServiceMock.Object, true);
+            string id = m_entity.EntityId;
+
+            await m_model.LoadAsync(id);
+
+            m_queryServiceMock.Verify(x => x.FindByIdAsync(id,
+                                    It.Is<Expression<Func<TestEntity, object>>[]>(y => y.Length == 1)), Times.Once);
+        }
+
+        [Test]
+        public async void GivenEntityReturnedByFindByIdQueryIsNotNull_WhenCallLoadAsync_ThenShouldInitializeModelEntity()
+        {
+            m_queryServiceMock.Setup(x => x.FindByIdAsync<TestEntity>(m_entity.EntityId)).ReturnsAsync(m_entity);
+
+            await m_model.LoadAsync(m_entity.EntityId);
+
+            Assert.That(m_model.IsValid, Is.True);
+            Assert.That(m_model.ToEntity(), Is.SameAs(m_entity));
+        }
+
+        [Test]
+        public async void GivenEntityReturnedByFindByIdQueryIsNull_WhenCallLoadAsync_ThenShouldNotInitializeModelEntity()
+        {
+            string id = m_entity.EntityId;
+            m_queryServiceMock.Setup(x => x.FindByIdAsync<TestEntity>(id)).ReturnsAsync(null);
+
+            await m_model.LoadAsync(id);
+
+            Assert.That(m_model.IsValid, Is.False);
+            Assert.That(m_model.ToEntity(), Is.Null);
+        }
+
+        [Test]
         public void GivenModelIsValid_WhenCallGetValue_ThenShouldReturnValueFromEntity()
         {
             m_entity.Value = "test value";

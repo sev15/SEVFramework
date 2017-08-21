@@ -43,6 +43,14 @@ namespace SEV.DAL.EF
             }
         }
 
+        public async System.Threading.Tasks.Task SaveChangesAsync()
+        {
+            if (m_context != null)
+            {
+                await m_context.SaveChangesAsync();
+            }
+        }
+
         private bool m_disposed;
 
         public void Dispose()

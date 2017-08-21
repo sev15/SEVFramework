@@ -4,7 +4,7 @@ namespace SEV.DI
 {
     public interface IDIContainerFactory
     {
-        IDIContainer CreateContainer();
+        IDIContainer CreateContainer(bool enablePropertyInjection = false);
         IServiceLocator CreateServiceLocator(IDIContainer container);
     }
 }

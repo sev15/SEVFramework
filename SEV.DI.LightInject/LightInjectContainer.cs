@@ -5,7 +5,8 @@ namespace SEV.DI.LightInject
 {
     internal class LightInjectContainer : ServiceContainer, IDIContainer
     {
-        public LightInjectContainer() : base(new ContainerOptions { EnableVariance = false })
+        public LightInjectContainer(bool enablePropertyInjection = false)
+            : base(new ContainerOptions { EnableVariance = false, EnablePropertyInjection = enablePropertyInjection })
         {
         }
 
@@ -42,11 +43,6 @@ namespace SEV.DI.LightInject
         public object GetService(Type serviceType)
         {
             return GetInstance(serviceType);
-        }
-
-        public void DisablePropertyInjection()
-        {
-            PropertyDependencySelector = new NullPropertyDependencySelector();
         }
     }
 }

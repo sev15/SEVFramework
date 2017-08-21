@@ -16,9 +16,9 @@ namespace SEV.DI
             m_containerFactory = factory;
         }
 
-        public IDIContainer CreateDIContainer()
+        public IDIContainer CreateDIContainer(bool enablePropertyInjection = false)
         {
-            return m_containerFactory.CreateContainer();
+            return m_containerFactory.CreateContainer(enablePropertyInjection);
         }
 
         public IServiceLocator CreateServiceLocator(IDIContainer container)

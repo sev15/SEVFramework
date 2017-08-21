@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model
 {
@@ -40,6 +41,14 @@ namespace SEV.UI.Model
             var includes = GetIncludes();
             var entity = includes.Any() ? QueryService.FindById(id, includes.ToArray())
                                         : QueryService.FindById<TEntity>(id);
+            SetEntity(entity);
+        }
+
+        public override async Task LoadAsync(string id)
+        {
+            var includes = GetIncludes();
+            var entity = includes.Any() ? await QueryService.FindByIdAsync(id, includes.ToArray())
+                                        : await QueryService.FindByIdAsync<TEntity>(id);
             SetEntity(entity);
         }
 

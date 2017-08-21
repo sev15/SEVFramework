@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.Service
 {
@@ -22,6 +23,7 @@ namespace SEV.Service
             {
                 entities = unitOfWork.Repository<T>().All();
 
+// ReSharper disable PossibleMultipleEnumeration
                 if (HasToLoadRelationships(entities, includes))
                 {
                     unitOfWork.RelationshipManager<T>().Load(entities, includes);
@@ -122,6 +124,65 @@ namespace SEV.Service
         private bool CanLoadRelationships<T>(IEnumerable<Expression<Func<T, object>>> includes) where T : Entity
         {
             return (includes != null) && includes.Any();
+        }
+
+        public async Task<IEnumerable<T>> ReadAsync<T>(params Expression<Func<T, object>>[] includes) where T : Entity
+        {
+            IEnumerable<T> entities;
+
+            using (IUnitOfWork unitOfWork = CreateUnitOfWork())
+            {
+                entities = await unitOfWork.Repository<T>().AllAsync();
+
+                if (HasToLoadRelationships(entities, includes))
+                {
+                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                }
+            }
+
+            return entities;
+        }
+
+        public async Task<T> FindByIdAsync<T>(string entityId, params Expression<Func<T, object>>[] includes)
+            where T : Entity
+        {
+            T entity;
+
+            using (IUnitOfWork unitOfWork = CreateUnitOfWork())
+            {
+                entity = await unitOfWork.Repository<T>().GetByIdAsync(entityId);
+
+                if (HasToLoadRelationships(entity, includes))
+                {
+                    unitOfWork.RelationshipManager<T>().Load(entity, includes);
+                }
+            }
+
+            return entity;
+        }
+
+        public async Task<IEnumerable<T>> FindByIdListAsync<T>(IEnumerable<string> entityIds,
+            params Expression<Func<T, object>>[] includes) where T : Entity
+        {
+            IEnumerable<T> entities;
+
+            using (IUnitOfWork unitOfWork = CreateUnitOfWork())
+            {
+                entities = await unitOfWork.Repository<T>().GetByIdListAsync(entityIds);
+
+                if (HasToLoadRelationships(entities, includes))
+                {
+                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                }
+            }
+
+            return entities;
+        }
+// ReSharper restore PossibleMultipleEnumeration
+
+        public Task<IEnumerable<T>> FindByQueryAsync<T>(IQuery<T> query) where T : Entity
+        {
+            return Task.Run(() => FindByQuery(query));
         }
     }
 }

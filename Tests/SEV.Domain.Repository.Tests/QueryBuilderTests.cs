@@ -40,6 +40,7 @@ namespace SEV.Domain.Repository.Tests
                     Amount = 10m * x,
                     CreationDate = DateTime.Today.AddDays(1 - x),
                     ModificationDate = DateTime.Today.AddDays(x - 1),
+                    ID = Guid.NewGuid(),
                     Unsupported = (byte)(x * 8)
                 }).AsQueryable();
             m_queryableMock.Setup(x => x.Provider).Returns(queryable.Provider);
@@ -75,6 +76,7 @@ namespace SEV.Domain.Repository.Tests
                     { 1, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.Id, true) },
                     { 4, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.ModificationDate, true) },
                     { 3, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.CreationDate, true) },
+                    { 5, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.ID, true) },
                 };
 
             var result = m_queryBuilder.BuildQuery(null, orderBys);
@@ -148,7 +150,7 @@ namespace SEV.Domain.Repository.Tests
         }
 
         [Test]
-        public void BuildQuery_ShouldOrderQueryableCollection_WhenOrderByGuidValue()
+        public void BuildQuery_ShouldOrderQueryableCollection_WhenOrderByIntValue()
         {
             IDictionary<int, Tuple<Expression<Func<TestEntity, object>>, bool>> orderBys =
                 new SortedDictionary<int, Tuple<Expression<Func<TestEntity, object>>, bool>>
@@ -161,6 +163,22 @@ namespace SEV.Domain.Repository.Tests
 
             var test = result.ToList();
             Assert.That(test.First().Id, Is.EqualTo(test.Select(x => x.Id).OrderByDescending(y => y).First()));
+        }
+
+        [Test]
+        public void BuildQuery_ShouldOrderQueryableCollection_WhenOrderByGuidValue()
+        {
+            IDictionary<int, Tuple<Expression<Func<TestEntity, object>>, bool>> orderBys =
+                new SortedDictionary<int, Tuple<Expression<Func<TestEntity, object>>, bool>>
+                {
+                    { 2, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.CreationDate, false) },
+                    { 1, new Tuple<Expression<Func<TestEntity, object>>, bool>(x => x.ID, true) }
+                };
+
+            var result = m_queryBuilder.BuildQuery(null, orderBys);
+
+            var test = result.ToList();
+            Assert.That(test.First().ID, Is.EqualTo(test.Select(x => x.ID).OrderByDescending(y => y).First()));
         }
 
         [Test]
@@ -243,6 +261,7 @@ namespace SEV.Domain.Repository.Tests
         public DateTime CreationDate { get; set; }
         public DateTime? ModificationDate { get; set; }
         public decimal Amount { get; set; }
+        public Guid ID { get; set; }
         public byte Unsupported { get; set; }
     }
 }

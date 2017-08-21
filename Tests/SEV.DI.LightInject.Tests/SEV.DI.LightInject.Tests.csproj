@@ -54,7 +54,6 @@
   <ItemGroup>
     <Compile Include="LightInjectContainerFactoryTests.cs" />
     <Compile Include="LightInjectContainerTests.cs" />
-    <Compile Include="NullPropertyDependencySelectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

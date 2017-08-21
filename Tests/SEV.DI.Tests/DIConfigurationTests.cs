@@ -27,11 +27,23 @@ namespace SEV.DI.Tests
         public void WhenCallCreateDIContainer_ThenShouldCallCreateContainerOfDIContainerFactory()
         {
             var containerMock = new Mock<IDIContainer>();
-            m_containerFactoryMock.Setup(x => x.CreateContainer()).Returns(containerMock.Object);
+            m_containerFactoryMock.Setup(x => x.CreateContainer(false)).Returns(containerMock.Object);
 
             var result = m_configuration.CreateDIContainer();
 
-            m_containerFactoryMock.Verify(x => x.CreateContainer(), Times.Once);
+            m_containerFactoryMock.Verify(x => x.CreateContainer(false), Times.Once);
+            Assert.That(result, Is.SameAs(containerMock.Object));
+        }
+
+        [Test]
+        public void GivenEnablePropertyInjectionValueIsProvided_WhenCallCreateDIContainer_ThenShouldCallCreateContainerOfDIContainerFactoryWithProvidedValue()
+        {
+            var containerMock = new Mock<IDIContainer>();
+            m_containerFactoryMock.Setup(x => x.CreateContainer(true)).Returns(containerMock.Object);
+
+            var result = m_configuration.CreateDIContainer(true);
+
+            m_containerFactoryMock.Verify(x => x.CreateContainer(true), Times.Once);
             Assert.That(result, Is.SameAs(containerMock.Object));
         }
 

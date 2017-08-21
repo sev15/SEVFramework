@@ -121,11 +121,29 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
+        public async void WhenCallLoadAsync_ThenShouldCallReadAsyncOfQueryService()
+        {
+            await m_model.LoadAsync();
+
+            m_queryServiceMock.Verify(x => x.ReadAsync<TestEntity>(), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallLoadAsync_ThenShouldInitializeModelItems()
+        {
+            m_queryServiceMock.Setup(x => x.ReadAsync<TestEntity>()).ReturnsAsync(new List<TestEntity> { m_entity });
+
+            await m_model.LoadAsync();
+
+            Assert.That(m_model.IsValid, Is.True);
+            Assert.That(((SingleModel<TestEntity>)m_model.Items.Single()).ToEntity(), Is.SameAs(m_entity));
+        }
+
+        [Test]
         public void GivenParentEntityExpressionIsNotInitialized_WhenCallLoadById_ThenShouldThrowInvalidOperationException()
         {
             Assert.Throws<InvalidOperationException>(() => m_model.Load("id"));
         }
-
 
         [Test]
         public void GivenParentEntityExpressionIsInitialized_WhenCallGetIncludes_ThenShouldReturnListContainingParentEntityExpression()
@@ -205,6 +223,33 @@ namespace SEV.UI.Model.Tests
             m_queryServiceMock.Setup(x => x.FindByQuery(queryMock.Object)).Returns(new List<TestEntity> { m_entity });
 
             m_model.Load("id");
+
+            Assert.That(m_model.IsValid, Is.True);
+            Assert.That(((SingleModel<TestEntity>)m_model.Items.Single()).ToEntity(), Is.SameAs(m_entity));
+        }
+
+        [Test]
+        public async void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldCallFindByQueryAsyncOfQueryService()
+        {
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
+            var queryMock = new Mock<IQuery<TestEntity>>();
+            m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>()).Returns(queryMock.Object);
+
+            await m_model.LoadAsync("id");
+
+            m_queryServiceMock.Verify(x => x.FindByQueryAsync(queryMock.Object));
+        }
+
+        [Test]
+        public async void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldInitializeModelItems()
+        {
+            m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
+            var queryMock = new Mock<IQuery<TestEntity>>();
+            m_serviceLocatorMock.Setup(x => x.GetInstance<IQuery<TestEntity>>()).Returns(queryMock.Object);
+            m_queryServiceMock.Setup(x => x.FindByQueryAsync(queryMock.Object))
+                              .ReturnsAsync(new List<TestEntity> { m_entity });
+
+            await m_model.LoadAsync("id");
 
             Assert.That(m_model.IsValid, Is.True);
             Assert.That(((SingleModel<TestEntity>)m_model.Items.Single()).ToEntity(), Is.SameAs(m_entity));

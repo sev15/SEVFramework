@@ -76,6 +76,9 @@
       <DependentUpon>201603301650556_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="SyncAsyncServicesPerformanceTests.cs" />
+    <Compile Include="SEVServicesAsyncTests.cs" />
+    <Compile Include="ServicesSysTestBase.cs" />
     <Compile Include="TestDbConfiguration.cs" />
     <Compile Include="TestDbContext.cs" />
     <Compile Include="SEVServicesTests.cs" />

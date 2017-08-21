@@ -8,5 +8,6 @@ namespace SEV.Domain.Repository
         IRelationshipManager<TEntity> RelationshipManager<TEntity>() where TEntity : Entity;
         IDomainQueryHandler<TResult> CreateDomainQueryHandler<TResult>(string queryName);
         void SaveChanges();
+        System.Threading.Tasks.Task SaveChangesAsync();
     }
 }

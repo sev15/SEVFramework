@@ -8,6 +8,8 @@ namespace SEV.UI.Model.Contract
 
         void Load();
 
+        System.Threading.Tasks.Task LoadAsync();
+
         // TODO : add method to load by query parameters.
         //void Load(IQueryParameters<TModel> queryParameters);
     }

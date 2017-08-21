@@ -95,6 +95,14 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
+        public void WhenCallSaveChangesAsync_ThenShouldCallSaveChangesAsyncOfDbContext()
+        {
+            m_unitOfWork.SaveChangesAsync();
+
+            m_dbContextMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        }
+
+        [Test]
         public void WhenCallDispose_ThenShouldCallDisposeOfDbContext()
         {
             m_unitOfWork.Dispose();

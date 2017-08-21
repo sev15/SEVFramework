@@ -6,9 +6,9 @@ namespace SEV.DI.LightInject
 {
     public class LightInjectContainerFactory : IDIContainerFactory
     {
-        public IDIContainer CreateContainer()
+        public IDIContainer CreateContainer(bool enablePropertyInjection = false)
         {
-            return new LightInjectContainer();
+            return new LightInjectContainer(enablePropertyInjection);
         }
 
         public IServiceLocator CreateServiceLocator(IDIContainer container)

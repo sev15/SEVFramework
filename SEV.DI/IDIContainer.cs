@@ -4,6 +4,5 @@ namespace SEV.DI
 {
     public interface IDIContainer : IDependencyRegistry, IServiceProvider
     {
-        void DisablePropertyInjection();
     }
 }

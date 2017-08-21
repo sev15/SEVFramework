@@ -195,6 +195,68 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
+        public async void GivenModelIsNew_WhenCallSaveAsync_ThenShouldCallCreateAsyncOfCommandService()
+        {
+            m_model.New();
+
+            await m_model.SaveAsync();
+
+            m_commandServiceMock.Verify(x => x.CreateAsync(It.Is<TestEntity>(y => y.Id == default(int))), Times.Once);
+        }
+
+        [Test]
+        public async void GivenCreateQuerySucceeds_WhenCallSaveAsync_ThenShouldInitializeModelEntityWithOneCreatedByCommandService()
+        {
+            m_model.New();
+            m_commandServiceMock.Setup(x => x.CreateAsync(It.Is<TestEntity>(y => y.Id == default(int))))
+                                .ReturnsAsync(m_entity);
+
+            await m_model.SaveAsync();
+
+            Assert.That(m_model.ToEntity(), Is.SameAs(m_entity));
+        }
+
+        [Test]
+        public async void GivenModelIsNotNew_WhenCallSaveAsync_ThenShouldCallUpdateAsyncOfCommandService()
+        {
+            m_model.SetEntity(m_entity);
+
+            await m_model.SaveAsync();
+
+            m_commandServiceMock.Verify(x => x.UpdateAsync(m_entity), Times.Once);
+        }
+
+        [Test]
+        public async void GivenUpdateQuerySucceeds_WhenCallSaveAsync_ThenShouldReInitializeModelEntity()
+        {
+            m_model.SetEntity(m_entity);
+
+            await m_model.SaveAsync();
+
+            Assert.That(m_model.IsValid, Is.True);
+        }
+
+        [Test]
+        public async void GivenModelEntityIsInitializedAndModelIsNotNew_WhenCallDeleteAsync_ThenShouldCallDeleteAsyncOfCommandService()
+        {
+            m_model.SetEntity(m_entity);
+
+            await m_model.DeleteAsync();
+
+            m_commandServiceMock.Verify(x => x.DeleteAsync(m_entity), Times.Once);
+        }
+
+        [Test]
+        public async void GivenDeleteQuerySucceeds_WhenCallDeleteAsync_ThenShouldNotReInitializeModelEntity()
+        {
+            m_model.SetEntity(m_entity);
+
+            await m_model.DeleteAsync();
+
+            Assert.That(m_model.IsValid, Is.False);
+        }
+
+        [Test]
         public void GivenModelIsValid_WhenCallSetReference_ThenShouldInitializeModelEntityPropertyWithValueFromSuppliedReference()
         {
             m_entity.Parent = new TestEntity { Id = 12};

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SEV.Domain.Repository
 {
@@ -7,6 +8,10 @@ namespace SEV.Domain.Repository
         IEnumerable<TEntity> All();
         TEntity GetById(object id);
         IEnumerable<TEntity> GetByIdList(IEnumerable<object> ids);
+
+        Task<IEnumerable<TEntity>> AllAsync();
+        Task<TEntity> GetByIdAsync(object id);
+        Task<IEnumerable<TEntity>> GetByIdListAsync(IEnumerable<object> ids);
 
         RepositoryQuery<TEntity> Query();
 

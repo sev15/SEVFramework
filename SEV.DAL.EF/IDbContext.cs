@@ -14,5 +14,6 @@ namespace SEV.DAL.EF
         void LoadEntityCollection<TEntity>(TEntity entity, string navigationProperty) where TEntity : class;
         object GetEntityReferenceId<TEntity>(TEntity entity, string navigationProperty) where TEntity : class;
         int SaveChanges();
+        System.Threading.Tasks.Task<int> SaveChangesAsync();
     }
 }

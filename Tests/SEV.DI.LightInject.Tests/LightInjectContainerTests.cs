@@ -21,20 +21,35 @@ namespace SEV.DI.LightInject.Tests
         }
 
         [Test]
+        public void GivenEnablePropertyInjectionIsTrue_WhenCreateLightInjectContainerObject_ThenShouldEnablePropertyInjection()
+        {
+            m_container = new LightInjectContainer(true);
+
+            var propertyDependencySelector = ((ServiceContainer)m_container).PropertyDependencySelector;
+            Assert.That(propertyDependencySelector, Is.InstanceOf<PropertyDependencySelector>());
+        }
+
+        [Test]
+        public void GivenEnablePropertyInjectionIsFalse_WhenCreateLightInjectContainerObject_ThenShouldDisablePropertyInjection()
+        {
+            var propertyDependencySelector = ((ServiceContainer)m_container).PropertyDependencySelector;
+            Assert.That(propertyDependencySelector, Is.Not.InstanceOf<PropertyDependencySelector>());
+        }
+
+        [Test]
         public void WhenCallRegisterWithOneGenericParam_ThenShouldRegisterProvidedTypeInIoC()
         {
-            m_container.Register<NullPropertyDependencySelector>();
+            m_container.Register<LightInjectContainerFactory>();
 
-            Assert.That(m_container.GetService(typeof(NullPropertyDependencySelector)), Is.Not.Null);
+            Assert.That(m_container.GetService(typeof(LightInjectContainerFactory)), Is.Not.Null);
         }
 
         [Test]
         public void WhenCallRegisterWithTwoGenericParams_ThenShouldRegisterProvidedTypeInIoC()
         {
-            m_container.Register<IPropertyDependencySelector, NullPropertyDependencySelector>();
+            m_container.Register<IDIContainerFactory, LightInjectContainerFactory>();
 
-            Assert.That(m_container.GetService(typeof(IPropertyDependencySelector)),
-                                                                    Is.InstanceOf<NullPropertyDependencySelector>());
+            Assert.That(m_container.GetService(typeof(IDIContainerFactory)), Is.InstanceOf<LightInjectContainerFactory>());
         }
 
         [Test]
@@ -42,55 +57,45 @@ namespace SEV.DI.LightInject.Tests
         {
             const string serviceName = "test";
 
-            m_container.Register<IPropertyDependencySelector, NullPropertyDependencySelector>(serviceName);
+            m_container.Register<IDIContainerFactory, LightInjectContainerFactory>(serviceName);
 
-            Assert.That(m_container.GetService(typeof(IPropertyDependencySelector)),
-                                                                    Is.InstanceOf<NullPropertyDependencySelector>());
+            Assert.That(m_container.GetService(typeof(IDIContainerFactory)), Is.InstanceOf<LightInjectContainerFactory>());
         }
 
         [Test]
         public void WhenCallRegisterWithOneParam_ThenShouldRegisterProvidedTypeInIoC()
         {
-            m_container.Register(typeof(NullPropertyDependencySelector));
+            m_container.Register(typeof(LightInjectContainerFactory));
 
-            Assert.That(m_container.GetService(typeof(NullPropertyDependencySelector)), Is.Not.Null);
+            Assert.That(m_container.GetService(typeof(LightInjectContainerFactory)), Is.Not.Null);
         }
 
         [Test]
         public void WhenCallRegisterWithTwoParams_ThenShouldRegisterProvidedTypeInIoC()
         {
-            m_container.Register(typeof(IPropertyDependencySelector), typeof(NullPropertyDependencySelector));
+            m_container.Register(typeof(IDIContainerFactory), typeof(LightInjectContainerFactory));
 
-            Assert.That(m_container.GetService(typeof(IPropertyDependencySelector)),
-                                                                    Is.InstanceOf<NullPropertyDependencySelector>());
+            Assert.That(m_container.GetService(typeof(IDIContainerFactory)), Is.InstanceOf<LightInjectContainerFactory>());
         }
 
         [Test]
         public void WhenCallRegisterInstance_ThenShouldRegisterProvidedObjectInIoC()
         {
-            var testObj = new NullPropertyDependencySelector();
+            var testObj = new LightInjectContainerFactory();
 
-            m_container.RegisterInstance<IPropertyDependencySelector>(testObj);
+            m_container.RegisterInstance<IDIContainerFactory>(testObj);
 
-            Assert.That(m_container.GetService(typeof(IPropertyDependencySelector)), Is.SameAs(testObj));
+            Assert.That(m_container.GetService(typeof(IDIContainerFactory)), Is.SameAs(testObj));
         }
 
         [Test]
         public void GivenRequestedTypeIsRegisteredInServiceContainer_WhenCallGetService_ThenShouldReturnInstanceOfRequestedType()
         {
-            m_container.Register<IPropertyDependencySelector, NullPropertyDependencySelector>();
+            m_container.Register<IDIContainerFactory, LightInjectContainerFactory>();
 
-            var result = m_container.GetService(typeof(IPropertyDependencySelector));
+            var result = m_container.GetService(typeof(IDIContainerFactory));
 
-            Assert.That(result, Is.InstanceOf<NullPropertyDependencySelector>());
-        }
-
-        [Test]
-        public void WhenCallDisablePropertyInjection_ThenShouldAssignNullPropertyDependencySelectorObjectToPropertyDependencySelectorOfServiceContainer()
-        {
-            m_container.DisablePropertyInjection();
-
-            Assert.That(((ServiceContainer)m_container).PropertyDependencySelector, Is.InstanceOf<NullPropertyDependencySelector>());
+            Assert.That(result, Is.InstanceOf<LightInjectContainerFactory>());
         }
     }
 }

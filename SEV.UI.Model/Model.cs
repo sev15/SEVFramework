@@ -4,6 +4,7 @@ using SEV.UI.Model.Contract;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model
 {
@@ -28,5 +29,7 @@ namespace SEV.UI.Model
         public abstract bool IsValid { get; }
 
         public abstract void Load(string id);
+
+        public abstract Task LoadAsync(string id);
     }
 }

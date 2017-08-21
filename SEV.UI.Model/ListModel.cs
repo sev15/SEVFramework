@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model
 {
@@ -49,7 +50,20 @@ namespace SEV.UI.Model
             SetItems(entities);
         }
 
+        public virtual async Task LoadAsync()
+        {
+            var entities = await QueryService.ReadAsync<TEntity>();
+            SetItems(entities);
+        }
+
         public override void Load(string id)
+        {
+            IQuery<TEntity> query = CreateQuery(id);
+            var entities = QueryService.FindByQuery(query);
+            SetItems(entities);
+        }
+
+        private IQuery<TEntity> CreateQuery(string id)
         {
             if (ParentEntityExpression == null)
             {
@@ -63,7 +77,14 @@ namespace SEV.UI.Model
             var query = ServiceLocator.Current.GetInstance<IQuery<TEntity>>();
             query.Filter = m_parentEntityFilterProvider.CreateFilter(ParentEntityExpression, id);
             query.Includes = GetIncludes();
-            var entities = QueryService.FindByQuery(query);
+
+            return query;
+        }
+
+        public override async Task LoadAsync(string id)
+        {
+            IQuery<TEntity> query = CreateQuery(id);
+            var entities = await QueryService.FindByQueryAsync(query);
             SetItems(entities);
         }
 

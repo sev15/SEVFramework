@@ -203,5 +203,82 @@ namespace SEV.Service.Tests
 
             m_unitOfWorkMock.Verify(x => x.Dispose(), Times.Once);
         }
+
+        // INFO : the unit tests for async methods are almost the same as for corresponding sync methods
+
+        [Test]
+        public void WhenCallCreateAsync_ThenShouldCallInsertOfEntityRepository()
+        {
+            m_service.Create(m_entity);
+
+            m_entityRepositoryMock.Verify(x => x.Insert(m_entity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallCreateAsync_ThenShouldCallCreateRelatedEntitiesOfRelationshipManager()
+        {
+            var createdEntity = new Mock<Entity>().Object;
+            m_entityRepositoryMock.Setup(x => x.Insert(m_entity)).Returns(createdEntity);
+
+            m_service.CreateAsync(m_entity);
+
+            m_entityRelationshipManagerMock.Verify(x => x.CreateRelatedEntities(m_entity, createdEntity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallCreateAsync_ThenShouldCallSaveChangesAsyncOfUnitOfWork()
+        {
+            m_service.CreateAsync(m_entity);
+
+            m_unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallCreateAsync_ThenShouldReturnNewEntityProvidedByEntityRepository()
+        {
+            var result = await m_service.CreateAsync(m_entity);
+
+            Assert.That(result, Is.SameAs(m_entity));
+        }
+
+        [Test]
+        public void WhenCallDeleteAsync_ThenShouldCallRemoveOfEntityRepository()
+        {
+            m_service.DeleteAsync(m_entity);
+
+            m_entityRepositoryMock.Verify(x => x.Remove(m_entity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallDeleteAsync_ThenShouldCallSaveChangesAsyncOfUnitOfWork()
+        {
+            m_service.DeleteAsync(m_entity);
+
+            m_unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallUpdateAsync_ThenShouldCallUpdateOfEntityRepository()
+        {
+            m_service.UpdateAsync(m_entity);
+
+            m_entityRepositoryMock.Verify(x => x.Update(m_entity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallUpdateAsync_ThenShouldCallUpdateRelatedEntitiesOfRelationshipManager()
+        {
+            m_service.UpdateAsync(m_entity);
+
+            m_entityRelationshipManagerMock.Verify(x => x.UpdateRelatedEntities(m_entity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallUpdateAsync_ThenShouldCallSaveChangesAsyncOfUnitOfWork()
+        {
+            m_service.UpdateAsync(m_entity);
+
+            m_unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
+        }
     }
 }

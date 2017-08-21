@@ -5,5 +5,7 @@
         bool IsValid { get; }
 
         void Load(string id);
+
+        System.Threading.Tasks.Task LoadAsync(string id);
     }
 }

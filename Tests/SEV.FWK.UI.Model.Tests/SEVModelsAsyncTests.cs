@@ -3,39 +3,35 @@ using NUnit.Framework;
 using SEV.FWK.Service.Tests;
 using SEV.Service.Contract;
 using SEV.UI.Model;
-using SEV.UI.Model.Contract;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace SEV.FWK.UI.Model.Tests
 {
     [TestFixture]
-    public class SEVModelsTests : ModelsSysTestBase
+    public class SEVModelsAsyncTests : ModelsSysTestBase
     {
         private const int ParentId = 1;
         private const string ParentValue = "Parent";
 
         [Test]
-        public void WhenCallLoadOfListModel_ThenShouldLoadFullCollectionForRequestedEntity()
+        public async void WhenCallLoadAsyncOfListModel_ThenShouldLoadFullCollectionForRequestedEntity()
         {
             var listModel = ServiceLocator.Current.GetInstance<ITestListModel>();
 
-            listModel.Load();
+            await listModel.LoadAsync();
 
             Assert.That(listModel.IsValid, Is.True);
             Assert.That(listModel.Items.Count, Is.EqualTo(ChildCount + 1));
         }
 
         [Test]
-        public void GivenParentEntityExpressionIsSpecified_WhenCallLoadByIdOfListModel_ThenShouldLoadCollectionOfEntitiesAttachedToParentEntityWithRequestedId()
+        public async void GivenParentEntityExpressionIsSpecified_WhenCallLoadByIdAsyncOfListModel_ThenShouldLoadCollectionOfEntitiesAttachedToParentEntityWithRequestedId()
         {
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
             string id = ParentId.ToString();
 
             var listModel = ServiceLocator.Current.GetInstance<ITestListModel>();
 
-            listModel.Load(id);
+            await listModel.LoadAsync(id);
 
             Assert.That(listModel.IsValid, Is.True);
             int count = 0;
@@ -49,12 +45,12 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityWithRequestedId()
+        public async void WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityWithRequestedId()
         {
             string id = ParentId.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
 
-            model.Load(id);
+            await model.LoadAsync(id);
 
             Assert.That(model.IsValid, Is.True);
             Assert.That(model.Id, Is.EqualTo(id));
@@ -62,12 +58,12 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void GivenParentEntityIsSpecifiedInGetIncludes_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityByRequestedIdWithParentEntity()
+        public async void GivenParentEntityIsSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithParentEntity()
         {
             string id = ChildCount.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
 
-            model.Load(id);
+            await model.LoadAsync(id);
 
             Assert.That(model.IsValid, Is.True);
             Assert.That(model.Id, Is.EqualTo(id));
@@ -77,12 +73,12 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void GivenRelatedEntitiesAreSpecifiedInGetIncludes_WhenCallLoadByIdOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntities()
+        public async void GivenRelatedEntitiesAreSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntities()
         {
             string id = ParentId.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
 
-            model.Load(id);
+            await model.LoadAsync(id);
 
             Assert.That(model.IsValid, Is.True);
             Assert.That(model.Parent, Is.Null);
@@ -90,38 +86,39 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void GivenNewModel_WhenCallSaveOfEditableModel_ThenShouldCreateNewEntity()
+        public async void GivenNewModel_WhenCallSaveAsyncOfEditableModel_ThenShouldCreateNewEntity()
         {
             const string testValue = "Create Test";
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
             model.New();
             model.Value = testValue;
 
-            model.Save();
+            await model.SaveAsync();
 
             string id = (ChildCount + 2).ToString();
-            var newEntity = ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id);
+            var newEntity = await ServiceLocator.Current.GetInstance<IQueryService>().FindByIdAsync<TestEntity>(id);
             Assert.That(newEntity, Is.Not.Null);
             Assert.That(newEntity.Value, Is.EqualTo(testValue));
         }
 
         [Test]
-        public void GivenExistingModel_WhenCallSaveOfEditableModel_ThenShouldUpdateModelEntity()
+        public async void GivenExistingModel_WhenCallSaveAsyncOfEditableModel_ThenShouldUpdateModelEntity()
         {
-            var entity = ServiceLocator.Current.GetInstance<ICommandService>().Create(new TestEntity { Value = "new" });
+            var entity = await ServiceLocator.Current.GetInstance<ICommandService>()
+                                                     .CreateAsync(new TestEntity { Value = "new" });
             const string updated = "Update Test";
             string id = entity.Id.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
-            model.Load(id);
+            await model.LoadAsync(id);
             model.Value = updated;
             var parentModel = ServiceLocator.Current.GetInstance<ITestModel>();
-            parentModel.Load(ParentId.ToString());
+            await parentModel.LoadAsync(ParentId.ToString());
             model.Parent = parentModel;
 
-            model.Save();
+            await model.SaveAsync();
 
-            var updatedEntity =
-                        ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id, x => x.Parent);
+            var updatedEntity = await ServiceLocator.Current.GetInstance<IQueryService>()
+                                                            .FindByIdAsync<TestEntity>(id, x => x.Parent);
             Assert.That(updatedEntity, Is.Not.Null);
             Assert.That(updatedEntity.Value, Is.EqualTo(updated));
             Assert.That(updatedEntity.Parent, Is.Not.Null);
@@ -129,74 +126,18 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public void WhenCallDeleteOfEditableModel_ThenShouldDeleteModelEntity()
+        public async void WhenCallDeleteAsyncOfEditableModel_ThenShouldDeleteModelEntity()
         {
             string id = (ChildCount - 1).ToString();
 // ReSharper restore SpecifyACultureInStringConversionExplicitly
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
-            model.Load(id);
+            await model.LoadAsync(id);
             Assert.That(model.IsValid, Is.True);
 
-            model.Delete();
+            await model.DeleteAsync();
 
-            var deletedEntity = ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id);
+            var deletedEntity = await ServiceLocator.Current.GetInstance<IQueryService>().FindByIdAsync<TestEntity>(id);
             Assert.That(deletedEntity, Is.Null);
         }
     }
-
-    #region Test Models
-
-    public interface ITestModel : IEditableModel
-    {
-        string Value { get; set; }
-        ITestModel Parent { get; set; }
-        IList<ITestModel> Children { get; }
-    }
-
-    public interface ITestListModel : IListModel<ITestModel>
-    {
-    }
-
-    public class TestModel : EditableModel<TestEntity>, ITestModel
-    {
-        public TestModel(IQueryService queryService, ICommandService commandService)
-            : base(queryService, commandService)
-        {
-        }
-
-        public string Value
-        {
-            get { return GetValue(x => x.Value); }
-            set { SetValue(value); }
-        }
-
-        public ITestModel Parent
-        {
-            get { return GetReference<ITestModel, TestEntity>(); }
-            set { SetReference<ITestModel, TestEntity> (value); }
-        }
-
-        public IList<ITestModel> Children => GetCollection<ITestModel, TestEntity>();
-
-        protected override List<Expression<Func<TestEntity, object>>> GetIncludes()
-        {
-            var includes = base.GetIncludes();
-
-            includes.Add(x => x.Parent);
-            includes.Add(x => x.Children);
-
-            return includes;
-        }
-    }
-
-    public class TestListModel : ListModel<ITestModel, TestEntity>, ITestListModel
-    {
-        public TestListModel(IQueryService queryService, IParentEntityFilterProvider filterProvider)
-            : base(queryService, filterProvider)
-        {
-            ParentEntityExpression = x => x.Parent;
-        }
-    }
-
-    #endregion
 }

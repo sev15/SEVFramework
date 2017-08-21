@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model.Tests
 {
@@ -57,6 +58,7 @@ namespace SEV.UI.Model.Tests
 
             public override bool IsValid { get { throw new NotImplementedException(); } }
             public override void Load(string id) { throw new NotImplementedException(); }
+            public override Task LoadAsync(string id) { throw new NotImplementedException(); }
         }
     }
 

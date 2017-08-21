@@ -329,6 +329,7 @@ namespace SEV.Service.Tests
             var result = m_service.FindByQuery(m_queryMock.Object);
 
             Assert.That(result, Is.Not.Null);
+// ReSharper disable PossibleMultipleEnumeration
             Assert.That(result.Count(), Is.EqualTo(1));
             Assert.That(result.First(), Is.SameAs(entity));
         }
@@ -376,6 +377,188 @@ namespace SEV.Service.Tests
             m_service.FindByQuery(m_queryMock.Object);
 
             m_unitOfWorkMock.Verify(x => x.Dispose(), Times.Once);
+        }
+
+        // INFO : the unit tests for async methods are almost the same as for corresponding sync methods
+
+        [Test]
+        public void WhenCallReadAsync_ThenShouldCallAllAsyncOfEntityRepository()
+        {
+            m_service.ReadAsync<Entity>();
+
+            m_repositoryMock.Verify(x => x.AllAsync(), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallReadAsync_ThenShouldReturnEntityCollectionProvidedByAllAsyncQuery()
+        {
+            var entities = new[] { new Mock<Entity>().Object };
+            m_repositoryMock.Setup(x => x.AllAsync()).ReturnsAsync(entities);
+
+            var result = await m_service.ReadAsync<Entity>();
+
+            Assert.That(result, Is.EqualTo(entities));
+        }
+
+        [Test]
+        public void GivenAllQueryReturnsNonEmptyCollectionAndIncludesAreSpecified_WhenCallReadAsync_ThenShouldCallLoadOfRelationshipManager()
+        {
+            var entities = new[] { new Mock<Entity>().Object };
+            m_repositoryMock.Setup(x => x.AllAsync()).ReturnsAsync(entities);
+            var includes = new Expression<Func<Entity, object>>[] { x => x.Id };
+
+            m_service.ReadAsync(includes);
+
+            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallFindByIdAsync_ThenShouldCallGetByIdAsyncOfEntityRepository()
+        {
+            m_service.FindByIdAsync<Entity>(TEST_ID);
+
+            m_repositoryMock.Verify(x => x.GetByIdAsync(TEST_ID), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallFindByIdAsync_ThenShouldReturnEntityProvidedByEntityRepository()
+        {
+            var entity = new Mock<Entity>().Object;
+            m_repositoryMock.Setup(x => x.GetByIdAsync(TEST_ID)).ReturnsAsync(entity);
+
+            var result = await m_service.FindByIdAsync<Entity>(TEST_ID);
+
+            Assert.That(result, Is.EqualTo(entity));
+        }
+
+        [Test]
+        public void GivenReturnedEntityIsNotNullAndIncludesAreSpecified_WhenCallFindByIdAsync_ThenShouldCallLoadOfRelationshipManager()
+        {
+            var entity = new Mock<Entity>().Object;
+            m_repositoryMock.Setup(x => x.GetByIdAsync(TEST_ID)).ReturnsAsync(entity);
+            var includes = new Expression<Func<Entity, object>>[] { x => x.Id };
+
+            m_service.FindByIdAsync(TEST_ID, includes);
+
+            m_relationshipManagerMock.Verify(x => x.Load(entity, includes), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallFindByIdListAsync_ThenShouldCallGetByIdListAsyncOfEntityRepository()
+        {
+            m_service.FindByIdListAsync<Entity>(new[] { TEST_ID });
+
+            m_repositoryMock.Verify(x => x.GetByIdListAsync(It.Is<IEnumerable<object>>(list =>
+                                                    list.Single().Equals(TEST_ID))), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallFindByIdListAsync_ThenShouldReturnEntitiesProvidedByGetByIdListAsyncQuery()
+        {
+            var entities = new Entity[0];
+            m_repositoryMock.Setup(x => x.GetByIdListAsync(It.IsAny<IList<object>>())).ReturnsAsync(entities);
+
+            var result = await m_service.FindByIdListAsync<Entity>(new[] { TEST_ID });
+
+            Assert.That(result, Is.EqualTo(entities));
+        }
+
+        [Test]
+        public void GivenGetByIdListQueryReturnsNonEmptyCollectionAndIncludesAreSpecified_WhenCallFindByIdListAsync_ThenShouldCallLoadOfRelationshipManager()
+        {
+            var entities = new[] { new Mock<Entity>().Object };
+            m_repositoryMock.Setup(x => x.GetByIdListAsync(It.IsAny<IList<object>>())).ReturnsAsync(entities);
+            var includes = new Expression<Func<Entity, object>>[] { x => x.Id };
+
+            m_service.FindByIdListAsync(new[] { TEST_ID }, includes);
+
+            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallFindByQueryAsync_ThenShouldCallQueryOfEntityRepository()
+        {
+            m_service.FindByQueryAsync(m_queryMock.Object);
+
+            m_repositoryMock.Verify(x => x.Query(), Times.Once);
+        }
+
+        [Test]
+        public void GivenFilterOfProvidedQueryIsNotNull_WhenCallFindByQueryAsync_ThenShouldCallBuildQueryOfEntityRepositoryWithProvidedFilter()
+        {
+            Expression<Func<Entity, bool>> filter = x => x.Id == 0;
+            m_queryMock.SetupGet(x => x.Filter).Returns(filter);
+
+            m_service.FindByQueryAsync(m_queryMock.Object);
+
+            m_repositoryMock.As<IQueryBuilder<Entity>>().Verify(x => x.BuildQuery(filter, null, null, null),
+                        Times.Once);
+        }
+
+        [Test]
+        public void GivenOrderingOfProvidedQueryIsNotNull_WhenCallFindByQueryAsync_ThenShouldCallBuildQueryOfEntityRepositoryWithProvidedOrdering()
+        {
+            var ordering = new Dictionary<int, Tuple<Expression<Func<Entity, object>>, bool>>
+            {
+                { 1, new Tuple<Expression<Func<Entity, object>>, bool>(x => x.Id, false) },
+            };
+            m_queryMock.SetupGet(x => x.Ordering).Returns(ordering);
+
+            m_service.FindByQueryAsync(m_queryMock.Object);
+
+            m_repositoryMock.As<IQueryBuilder<Entity>>().Verify(x => x.BuildQuery(null,
+                It.IsAny<IDictionary<int, Tuple<Expression<Func<Entity, object>>, bool>>>(), null, null), Times.Once);
+        }
+
+        [Test]
+        public void GivenPageCountAndPageSizeOfProvidedQueryAreNotNull_WhenCallFindByQueryAsync_ThenShouldCallBuildQueryOfEntityRepositoryWithProvidedPageCountAndPageSize()
+        {
+            const int count = 11;
+            const int size = 11;
+            m_queryMock.SetupGet(x => x.PageCount).Returns(count);
+            m_queryMock.SetupGet(x => x.PageSize).Returns(size);
+
+            m_service.FindByQueryAsync(m_queryMock.Object);
+
+            m_repositoryMock.As<IQueryBuilder<Entity>>().Verify(x => x.BuildQuery(null, null, count, size), Times.Once);
+        }
+
+        [Test]
+        public async void WhenCallFindByQueryAsync_ThenShouldReturnEntityCollectionProvidedByBuildQuery()
+        {
+            var queryBuilderMock = new Mock<IQueryBuilder<Entity>>();
+            m_repositoryMock.Setup(x => x.Query()).Returns(new RepositoryQuery<Entity>(queryBuilderMock.Object));
+            Expression<Func<Entity, bool>> filter = x => x.Id != 0;
+            m_queryMock.SetupGet(x => x.Filter).Returns(filter);
+            Entity entity = new Mock<Entity> { CallBase = true }.Object;
+            queryBuilderMock.Setup(x => x.BuildQuery(filter, null, null, null))
+                            .Returns(new List<Entity> { entity }.AsQueryable());
+
+            var result = await m_service.FindByQueryAsync(m_queryMock.Object);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count(), Is.EqualTo(1));
+            Assert.That(result.First(), Is.SameAs(entity));
+// ReSharper restore PossibleMultipleEnumeration
+        }
+
+        [Test]
+        public void GivenBuildQueryReturnsNonEmptyCollectionAndIncludesAreSpecified_WhenCallFindByQueryAsync_ThenShouldCallLoadOfRelationshipManager()
+        {
+            var queryBuilderMock = new Mock<IQueryBuilder<Entity>>();
+            m_repositoryMock.Setup(x => x.Query()).Returns(new RepositoryQuery<Entity>(queryBuilderMock.Object));
+            Expression<Func<Entity, bool>> filter = x => x.Id != 0;
+            m_queryMock.SetupGet(x => x.Filter).Returns(filter);
+            var includes = new Expression<Func<Entity, object>>[] { x => x.Id };
+            m_queryMock.SetupGet(x => x.Includes).Returns(includes);
+            Entity entity = new Mock<Entity> { CallBase = true }.Object;
+            queryBuilderMock.Setup(x => x.BuildQuery(filter, null, null, null))
+                            .Returns(new List<Entity> { entity }.AsQueryable());
+
+            m_service.FindByQueryAsync(m_queryMock.Object);
+
+            m_relationshipManagerMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
+                                                            includes), Times.Once);
         }
     }
 }

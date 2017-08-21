@@ -23,7 +23,7 @@ namespace SEV.Service.DI.Tests
         {
             var containerFactoryMock = new Mock<IDIContainerFactory>();
             m_containerMock = new Mock<IDIContainer>();
-            containerFactoryMock.Setup(x => x.CreateContainer()).Returns(m_containerMock.Object);
+            containerFactoryMock.Setup(x => x.CreateContainer(false)).Returns(m_containerMock.Object);
             var configuration = DIConfiguration.Create(containerFactoryMock.Object);
 
             return configuration.CreateDIContainer();

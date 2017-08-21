@@ -5,6 +5,7 @@ using SEV.Domain.Repository;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SEV.DAL.EF
 {
@@ -43,6 +44,24 @@ namespace SEV.DAL.EF
         {
             var idList = ids.Select(CastId).ToList();
             return m_dbSet.Where(x => idList.Contains(x.Id)).ToList();
+        }
+
+        public async Task<IEnumerable<TEntity>> AllAsync()
+        {
+            return await m_dbSet.ToListAsync();
+        }
+
+        public async Task<TEntity> GetByIdAsync(object id)
+        {
+            var idValue = CastId(id);
+
+            return await m_dbSet.FirstOrDefaultAsync(x => x.Id == idValue);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetByIdListAsync(IEnumerable<object> ids)
+        {
+            var idList = ids.Select(CastId).ToList();
+            return await m_dbSet.Where(x => idList.Contains(x.Id)).ToListAsync();
         }
 
         public RepositoryQuery<TEntity> Query()

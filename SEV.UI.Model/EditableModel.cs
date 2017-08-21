@@ -4,6 +4,7 @@ using SEV.UI.Model.Contract;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model
 {
@@ -33,32 +34,41 @@ namespace SEV.UI.Model
 
         public virtual void Save()
         {
-            // TODO : implement Validation..
-
-            if (!IsValid)
-            {
-                throw new InvalidOperationException("The model is not valid.");
-            }
+            ValidateOnSave();
+            IsInitialized = false;
 
             if (IsNew)
             {
-                IsInitialized = false;
                 var entity = CommandService.Create(Entity);
                 SetEntity(entity);
                 IsNew = false;
             }
             else
             {
-                IsInitialized = false;
                 CommandService.Update(Entity);
                 IsInitialized = true;
             }
         }
 
-        public virtual void Delete()
+        private void ValidateOnSave()
         {
             // TODO : implement Validation..
 
+            if (!IsValid)
+            {
+                throw new InvalidOperationException("The model is not valid.");
+            }
+        }
+
+        public virtual void Delete()
+        {
+            ValidateOnDelete();
+            IsInitialized = false;
+            CommandService.Delete(Entity);
+        }
+
+        private void ValidateOnDelete()
+        {
             if (!IsValid)
             {
                 throw new InvalidOperationException("The model is not valid.");
@@ -67,9 +77,31 @@ namespace SEV.UI.Model
             {
                 throw new InvalidOperationException("Can not delete a new model.");
             }
+        }
 
+        public virtual async Task SaveAsync()
+        {
+            ValidateOnSave();
             IsInitialized = false;
-            CommandService.Delete(Entity);
+
+            if (IsNew)
+            {
+                var entity = await CommandService.CreateAsync(Entity);
+                SetEntity(entity);
+                IsNew = false;
+            }
+            else
+            {
+                await CommandService.UpdateAsync(Entity);
+                IsInitialized = true;
+            }
+        }
+
+        public virtual async Task DeleteAsync()
+        {
+            ValidateOnDelete();
+            IsInitialized = false;
+            await CommandService.DeleteAsync(Entity);
         }
 
         protected void SetValue<TValue>(TValue value, [CallerMemberName] string propertyName = null)
@@ -119,10 +151,7 @@ namespace SEV.UI.Model
         private void OnPropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
