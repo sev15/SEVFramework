@@ -10,9 +10,9 @@ The SEV Framework is based on the use of the Dependency Inversion S.O.L.I.D prin
 
 The SEV Framework is organized with the following nuget packages (currently unlisted)
 
-- SEV.FWK.Service (NuGet.exe install SEV.FWK.Service -Version 0.5.0 -o Nupkgs)
-- SEV.FWK.DAL.EF (NuGet.exe install SEV.FWK.DAL.EF -Version 0.5.0 -o Nupkgs)
-- SEV.FWK.UI.Model (NuGet.exe install SEV.FWK.UI.Model -Version 0.5.0 -o Nupkgs)
-- SEV.FWK.DI.Web (NuGet.exe install SEV.FWK.DI.Web -Version 0.5.0 -o Nupkgs)
-- SEV.FWK.DI.LightInject (NuGet.exe install SEV.FWK.DI.LightInject -Version 0.5.0 -o Nupkgs)
-- SEV.FWK.DI.Web.LightInject (NuGet.exe install SEV.FWK.DI.Web.LightInject -Version 0.5.0 -o Nupkgs)
+- SEV.FWK.Service (Install-Package SEV.FWK.Service -Version 0.5.0)
+- SEV.FWK.DAL.EF (Install-Package SEV.FWK.DAL.EF -Version 0.5.0)
+- SEV.FWK.UI.Model (Install-Package SEV.FWK.UI.Model -Version 0.5.0)
+- SEV.FWK.DI.Web (Install-Package SEV.FWK.DI.Web -Version 0.5.0)
+- SEV.FWK.DI.LightInject (Install-Package SEV.FWK.DI.LightInject -Version 0.5.0)
+- SEV.FWK.DI.Web.LightInject (Install-Package SEV.FWK.DI.Web.LightInject -Version 0.5.0)
