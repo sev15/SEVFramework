@@ -1,7 +1,11 @@
-﻿using Moq;
+﻿using System.ComponentModel.DataAnnotations;
+using Moq;
 using NUnit.Framework;
+using SEV.Common;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Data;
+using SEV.Domain.Services.Logic;
 using SEV.Service.Contract;
 
 namespace SEV.Service.Tests
@@ -11,9 +15,10 @@ namespace SEV.Service.Tests
     {
         private Mock<IUnitOfWorkFactory> m_unitOfWorkFactoryMock;
         private Mock<IUnitOfWork> m_unitOfWorkMock;
+        private Mock<IValidationService> m_validationServiceMock;
         private Entity m_entity;
         private Mock<IRepository<Entity>> m_entityRepositoryMock;
-        private Mock<IRelationshipManager<Entity>> m_entityRelationshipManagerMock;
+        private Mock<IDomainEventsAggregator> m_eventsAggregatorMock;
         private ICommandService m_service;
 
         #region SetUp
@@ -23,7 +28,7 @@ namespace SEV.Service.Tests
         {
             InitMocks();
 
-            m_service = new CommandService(m_unitOfWorkFactoryMock.Object);
+            m_service = new CommandService(m_unitOfWorkFactoryMock.Object, m_validationServiceMock.Object);
         }
 
         private void InitMocks()
@@ -31,12 +36,15 @@ namespace SEV.Service.Tests
             m_entity = new Mock<Entity>().Object;
             m_entityRepositoryMock = new Mock<IRepository<Entity>>();
             m_entityRepositoryMock.Setup(x => x.Insert(m_entity)).Returns(m_entity);
-            m_entityRelationshipManagerMock = new Mock<IRelationshipManager<Entity>>();
             m_unitOfWorkMock = new Mock<IUnitOfWork>();
             m_unitOfWorkMock.Setup(x => x.Repository<Entity>()).Returns(m_entityRepositoryMock.Object);
-            m_unitOfWorkMock.Setup(x => x.RelationshipManager<Entity>()).Returns(m_entityRelationshipManagerMock.Object);
+            m_eventsAggregatorMock = new Mock<IDomainEventsAggregator>();
+            m_unitOfWorkMock.Setup(x => x.DomainEventsAggregator()).Returns(m_eventsAggregatorMock.Object);
             m_unitOfWorkFactoryMock = new Mock<IUnitOfWorkFactory>();
             m_unitOfWorkFactoryMock.Setup(x => x.Create()).Returns(m_unitOfWorkMock.Object);
+            m_validationServiceMock = new Mock<IValidationService>();
+            m_validationServiceMock.Setup(x => x.ValidateEntity(It.IsAny<Entity>(), It.IsAny<DomainEvent>()))
+                                   .Returns(new ValidationResult[0]);
         }
 
         #endregion
@@ -47,6 +55,23 @@ namespace SEV.Service.Tests
             m_service.Create(m_entity);
 
             m_unitOfWorkFactoryMock.Verify(x => x.Create(), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallCreate_ThenShouldCallValidateEntityOfValidationServiceForSpecifiedEntityAndCreateDomainEvent()
+        {
+            m_service.Create(m_entity);
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(m_entity, DomainEvent.Create), Times.Once);
+        }
+
+        [Test]
+        public void GivenValidationServiceReturnsSomeValidationResults_WhenCallCreate_ThenShouldThrowDomainValidationException()
+        {
+            m_validationServiceMock.Setup(x => x.ValidateEntity(m_entity, DomainEvent.Create))
+                                   .Returns(new[] { new ValidationResult("test message") });
+
+            Assert.That(() => m_service.Create(m_entity), Throws.TypeOf<DomainValidationException>());
         }
 
         [Test]
@@ -66,22 +91,21 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public void WhenCallCreate_ThenShouldCallRelationshipManagerOfUnitOfWorkForSpecifiedEntity()
+        public void WhenCallCreate_ThenShouldCallDomainEventsAggregatorOfUnitOfWork()
         {
             m_service.Create(m_entity);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.DomainEventsAggregator(), Times.Once);
         }
 
         [Test]
-        public void WhenCallCreate_ThenShouldCallCreateRelatedEntitiesOfRelationshipManager()
+        public void WhenCallCreate_ThenShouldCallRaiseEventOfDomainEventsAggregatorForSpecifiedEntityAndCreateDomainEvent()
         {
-            var createdEntity = new Mock<Entity>().Object;
-            m_entityRepositoryMock.Setup(x => x.Insert(m_entity)).Returns(createdEntity);
-
             m_service.Create(m_entity);
 
-            m_entityRelationshipManagerMock.Verify(x => x.CreateRelatedEntities(m_entity, createdEntity), Times.Once);
+// ReSharper disable PossibleUnintendedReferenceComparison
+            m_eventsAggregatorMock.Verify(x => x.RaiseEvent(It.Is<DomainEventArgs<Entity>>(y => y.Entity == m_entity &&
+                                y.Event == DomainEvent.Create && y.UnitOfWork == m_unitOfWorkMock.Object)), Times.Once);
         }
 
         [Test]
@@ -117,6 +141,23 @@ namespace SEV.Service.Tests
         }
 
         [Test]
+        public void WhenCallDelete_ThenShouldCallValidateEntityOfValidationServiceForSpecifiedEntityAndDeleteDomainEvent()
+        {
+            m_service.Delete(m_entity);
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(m_entity, DomainEvent.Delete), Times.Once);
+        }
+
+        [Test]
+        public void GivenValidationServiceReturnsSomeValidationResults_WhenCallDelete_ThenShouldThrowDomainValidationException()
+        {
+            m_validationServiceMock.Setup(x => x.ValidateEntity(m_entity, DomainEvent.Delete))
+                                   .Returns(new[] { new ValidationResult("test message") });
+
+            Assert.That(() => m_service.Delete(m_entity), Throws.TypeOf<DomainValidationException>());
+        }
+
+        [Test]
         public void WhenCallDelete_ThenShouldCallRepositoryOfUnitOfWorkForSpecifiedEntity()
         {
             m_service.Delete(m_entity);
@@ -130,6 +171,23 @@ namespace SEV.Service.Tests
             m_service.Delete(m_entity);
 
             m_entityRepositoryMock.Verify(x => x.Remove(m_entity), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallDelete_ThenShouldCallDomainEventsAggregatorOfUnitOfWork()
+        {
+            m_service.Delete(m_entity);
+
+            m_unitOfWorkMock.Verify(x => x.DomainEventsAggregator(), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallDelete_ThenShouldCallRaiseEventOfDomainEventsAggregatorForSpecifiedEntityAndDeleteDomainEvent()
+        {
+            m_service.Delete(m_entity);
+
+            m_eventsAggregatorMock.Verify(x => x.RaiseEvent(It.Is<DomainEventArgs<Entity>>(y => y.Entity == m_entity &&
+                            y.Event == DomainEvent.Delete && y.UnitOfWork == m_unitOfWorkMock.Object)), Times.Once);
         }
 
         [Test]
@@ -157,6 +215,23 @@ namespace SEV.Service.Tests
         }
 
         [Test]
+        public void WhenCallUpdate_ThenShouldCallValidateEntityOfValidationServiceForSpecifiedEntityAndUpdateDomainEvent()
+        {
+            m_service.Update(m_entity);
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(m_entity, DomainEvent.Update), Times.Once);
+        }
+
+        [Test]
+        public void GivenValidationServiceReturnsSomeValidationResults_WhenCallUpdate_ThenShouldThrowDomainValidationException()
+        {
+            m_validationServiceMock.Setup(x => x.ValidateEntity(m_entity, DomainEvent.Update))
+                                   .Returns(new[] { new ValidationResult("test message") });
+
+            Assert.That(() => m_service.Update(m_entity), Throws.TypeOf<DomainValidationException>());
+        }
+
+        [Test]
         public void WhenCallUpdate_ThenShouldCallRepositoryOfUnitOfWorkForSpecifiedEntity()
         {
             m_service.Update(m_entity);
@@ -173,19 +248,21 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public void WhenCallUpdate_ThenShouldCallRelationshipManagerOfUnitOfWorkForSpecifiedEntity()
+        public void WhenCallUpdate_ThenShouldCallDomainEventsAggregatorOfUnitOfWork()
         {
             m_service.Update(m_entity);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.DomainEventsAggregator(), Times.Once);
         }
 
         [Test]
-        public void WhenCallUpdate_ThenShouldCallUpdateRelatedEntitiesOfRelationshipManager()
+        public void WhenCallUpdate_ThenShouldCallRaiseEventOfDomainEventsAggregatorForSpecifiedEntityAndUpdateDomainEvent()
         {
             m_service.Update(m_entity);
 
-            m_entityRelationshipManagerMock.Verify(x => x.UpdateRelatedEntities(m_entity), Times.Once);
+            m_eventsAggregatorMock.Verify(x => x.RaiseEvent(It.Is<DomainEventArgs<Entity>>(y => y.Entity == m_entity &&
+                            y.Event == DomainEvent.Update && y.UnitOfWork == m_unitOfWorkMock.Object)), Times.Once);
+// ReSharper restore PossibleUnintendedReferenceComparison
         }
 
         [Test]
@@ -212,17 +289,6 @@ namespace SEV.Service.Tests
             m_service.Create(m_entity);
 
             m_entityRepositoryMock.Verify(x => x.Insert(m_entity), Times.Once);
-        }
-
-        [Test]
-        public void WhenCallCreateAsync_ThenShouldCallCreateRelatedEntitiesOfRelationshipManager()
-        {
-            var createdEntity = new Mock<Entity>().Object;
-            m_entityRepositoryMock.Setup(x => x.Insert(m_entity)).Returns(createdEntity);
-
-            m_service.CreateAsync(m_entity);
-
-            m_entityRelationshipManagerMock.Verify(x => x.CreateRelatedEntities(m_entity, createdEntity), Times.Once);
         }
 
         [Test]
@@ -263,14 +329,6 @@ namespace SEV.Service.Tests
             m_service.UpdateAsync(m_entity);
 
             m_entityRepositoryMock.Verify(x => x.Update(m_entity), Times.Once);
-        }
-
-        [Test]
-        public void WhenCallUpdateAsync_ThenShouldCallUpdateRelatedEntitiesOfRelationshipManager()
-        {
-            m_service.UpdateAsync(m_entity);
-
-            m_entityRelationshipManagerMock.Verify(x => x.UpdateRelatedEntities(m_entity), Times.Once);
         }
 
         [Test]

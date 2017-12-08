@@ -1,5 +1,5 @@
 ﻿using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
 using SEV.Service.Contract;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace SEV.Service
 // ReSharper disable PossibleMultipleEnumeration
                 if (HasToLoadRelationships(entities, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entities, includes);
                 }
             }
 
@@ -43,7 +43,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entity, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entity, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entity, includes);
                 }
             }
 
@@ -61,7 +61,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entities, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entities, includes);
                 }
             }
 
@@ -102,7 +102,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entities, query.Includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entities, query.Includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entities, query.Includes);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entities, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entities, includes);
                 }
             }
 
@@ -154,7 +154,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entity, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entity, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entity, includes);
                 }
             }
 
@@ -172,7 +172,7 @@ namespace SEV.Service
 
                 if (HasToLoadRelationships(entities, includes))
                 {
-                    unitOfWork.RelationshipManager<T>().Load(entities, includes);
+                    unitOfWork.RelationshipsLoader<T>().Load(entities, includes);
                 }
             }
 

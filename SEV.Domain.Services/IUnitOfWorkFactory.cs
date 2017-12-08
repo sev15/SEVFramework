@@ -1,5 +1,5 @@
 ﻿
-namespace SEV.Domain.Repository
+namespace SEV.Domain.Services
 {
     public interface IUnitOfWorkFactory
     {

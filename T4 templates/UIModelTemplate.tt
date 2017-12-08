@@ -35,11 +35,11 @@ using SEV.UI.Model;
 
 namespace SEV.Samples.UI.Model
 {
-    [GeneratedCode("SEV.FWK.UI.Model", "0.4.0.0")]
+    [GeneratedCode("SEV.FWK.UI.Model", "0.5.0.0")]
     public partial class <#=modelType.Name#>Model : EditableModel<<#=modelType.Name#>>, I<#=modelType.Name#>Model
     {
-        public <#=modelType.Name#>Model(IQueryService queryService, ICommandService commandService)
-	        : base(queryService, commandService)
+        public <#=modelType.Name#>Model(IQueryService qservice, ICommandService cservice, IValidationService vservice)
+	        : base(qservice, cservice, vservice)
         {
         }
 

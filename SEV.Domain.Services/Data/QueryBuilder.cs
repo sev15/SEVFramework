@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace SEV.Domain.Repository
+namespace SEV.Domain.Services.Data
 {
     public abstract class QueryBuilder<TEntity> : IQueryBuilder<TEntity> where TEntity : class
     {

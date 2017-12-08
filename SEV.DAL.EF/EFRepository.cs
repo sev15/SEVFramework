@@ -1,7 +1,7 @@
 ﻿using Microsoft.Practices.ServiceLocation;
 using SEV.DI;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services.Data;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;

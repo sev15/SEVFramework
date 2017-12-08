@@ -3,13 +3,13 @@ using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using SEV.Domain.Services.Data;
 
 namespace SEV.DAL.EF.Tests
 {

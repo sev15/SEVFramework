@@ -1,7 +1,7 @@
 ﻿using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
 
 namespace SEV.DAL.EF.Tests
 {

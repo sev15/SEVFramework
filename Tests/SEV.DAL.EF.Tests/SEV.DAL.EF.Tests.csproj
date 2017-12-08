@@ -57,7 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DIContainerExtentionsTests.cs" />
-    <Compile Include="EFRelationshipManagerTests.cs" />
+    <Compile Include="EFRelationshipsLoaderTests.cs" />
     <Compile Include="EFRepositoryFactoryTests.cs" />
     <Compile Include="EFRepositoryTests.cs" />
     <Compile Include="EFUnitOfWorkFactoryTests.cs" />
@@ -84,9 +84,9 @@
       <Project>{530c10e0-f51f-4a8c-9821-c5c9366be728}</Project>
       <Name>SEV.Domain.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SEV.Domain.Repository\SEV.Domain.Repository.csproj">
+    <ProjectReference Include="..\..\SEV.Domain.Services\SEV.Domain.Services.csproj">
       <Project>{2D262CA2-2ADD-441C-9AD7-DA377DB42266}</Project>
-      <Name>SEV.Domain.Repository</Name>
+      <Name>SEV.Domain.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

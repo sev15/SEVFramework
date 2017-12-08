@@ -41,6 +41,7 @@
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -63,6 +64,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SEV.Common\SEV.Common.csproj">
+      <Project>{01E9A063-81CE-4813-BA6A-4AA955D2F9D4}</Project>
+      <Name>SEV.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SEV.Domain.Model\SEV.Domain.Model.csproj">
       <Project>{530C10E0-F51F-4A8C-9821-C5C9366BE728}</Project>
       <Name>SEV.Domain.Model</Name>

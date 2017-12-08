@@ -1,4 +1,4 @@
-﻿using SEV.Domain.Repository;
+﻿using SEV.Domain.Services;
 
 namespace SEV.Service
 {

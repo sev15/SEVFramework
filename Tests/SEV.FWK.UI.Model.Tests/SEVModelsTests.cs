@@ -159,8 +159,8 @@ namespace SEV.FWK.UI.Model.Tests
 
     public class TestModel : EditableModel<TestEntity>, ITestModel
     {
-        public TestModel(IQueryService queryService, ICommandService commandService)
-            : base(queryService, commandService)
+        public TestModel(IQueryService queryService, ICommandService commandService, IValidationService validationService)
+            : base(queryService, commandService, validationService)
         {
         }
 

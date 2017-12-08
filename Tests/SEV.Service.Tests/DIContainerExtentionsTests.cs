@@ -1,6 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SEV.DI;
+using SEV.Domain.Services.Validation;
 using SEV.Service.Contract;
 
 namespace SEV.Service.DI.Tests
@@ -45,6 +46,22 @@ namespace SEV.Service.DI.Tests
             m_container.RegisterAplicationServices();
 
             m_containerMock.Verify(x => x.Register<ICommandService, CommandService>(), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallRegisterAplicationServices_ThenShouldCallRegisterOfDIContainerForIValidationService()
+        {
+            m_container.RegisterAplicationServices();
+
+            m_containerMock.Verify(x => x.Register<IValidationService, ValidationService>(), Times.Once);
+        }
+
+        [Test]
+        public void WhenCallRegisterDomainServices_ThenShouldCallRegisterOfDIContainerForIBusinessRuleProvider()
+        {
+            m_container.RegisterAplicationServices();
+
+            m_containerMock.Verify(x => x.Register<IBusinessRuleProvider, BusinessRuleProvider>(), Times.Once);
         }
 
         [Test]

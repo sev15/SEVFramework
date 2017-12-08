@@ -1,5 +1,6 @@
 ﻿using SEV.DI;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Validation;
 
 namespace SEV.DAL.EF.DI
 {
@@ -10,6 +11,7 @@ namespace SEV.DAL.EF.DI
             container.Register<IUnitOfWorkFactory, EFUnitOfWorkFactory>();
             container.Register<IRepositoryFactory, EFRepositoryFactory>();
             container.Register<IRelatedEntitiesStateAdjuster, EFRelatedEntitiesStateAdjuster>();
+            container.Register<IBusinessRuleProvider, BusinessRuleProvider>();
 
             return container;
         }

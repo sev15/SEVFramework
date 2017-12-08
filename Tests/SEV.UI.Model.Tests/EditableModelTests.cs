@@ -1,9 +1,12 @@
 ﻿using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
+using SEV.Common;
+using SEV.Domain.Model;
 using SEV.Service.Contract;
 using SEV.UI.Model.Contract;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SEV.UI.Model.Tests
 {
@@ -13,7 +16,8 @@ namespace SEV.UI.Model.Tests
         private const int TestId = 123;
 
         private Mock<IQueryService> m_queryServiceMock;
-        private Mock<ICommandService> m_commandServiceMock;  
+        private Mock<ICommandService> m_commandServiceMock;
+        private Mock<IValidationService> m_validationServiceMock;
         private Mock<IServiceLocator> m_serviceLocatorMock;
         private TestEntity m_entity;
         private TestModel2 m_model;
@@ -25,14 +29,18 @@ namespace SEV.UI.Model.Tests
         {
             InitMocks();
 
-            m_model = new TestModel2(m_queryServiceMock.Object, m_commandServiceMock.Object);
+            m_model =
+                new TestModel2(m_queryServiceMock.Object, m_commandServiceMock.Object, m_validationServiceMock.Object);
         }
 
         private void InitMocks()
         {
+            m_entity = new TestEntity { Id = TestId };
             m_queryServiceMock = new Mock<IQueryService>();
             m_commandServiceMock = new Mock<ICommandService>();
-            m_entity = new TestEntity { Id = TestId };
+            m_validationServiceMock = new Mock<IValidationService>();
+            m_validationServiceMock.Setup(x => x.ValidateEntity(It.IsAny<Entity>(), It.IsAny<DomainEvent>()))
+                                   .Returns(new ValidationResult[0]);
             //m_queryServiceMock.Setup(x => x.FindById<TestEntity>(m_entity.EntityId)).Returns(m_entity);
             m_serviceLocatorMock = new Mock<IServiceLocator>();
             m_serviceLocatorMock.Setup(x => x.GetInstance<ITestModel>())
@@ -79,9 +87,31 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenModelEntityIsNotInitialized_WhenCallSave_ThenShouldThrowInvalidOperationException()
+        public void GivenModelEntityIsNotInitialized_WhenCallSave_ThenShouldThrowDomainValidationException()
         {
-            Assert.Throws<InvalidOperationException>(() => m_model.Save());
+            Assert.Throws<DomainValidationException>(() => m_model.Save());
+        }
+
+        [Test]
+        public void GivenModelIsNewAndEntityIsInitialized_WhenCallSave_ThenShouldCallValidateEntityOfValidationServiceForCreateDomainEvent()
+        {
+            m_model.New();
+
+            m_model.Save();
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(
+                                        It.Is<TestEntity>(y => y.Id == default(int)), DomainEvent.Create), Times.Once);
+        }
+
+        [Test]
+        public void GivenModelIsNewAndEntityIsNotValid_WhenCallSave_ThenShouldThrowDomainValidationException()
+        {
+            m_model.New();
+            var results = new[] { new ValidationResult("test") };
+            m_validationServiceMock.Setup(x => x.ValidateEntity(
+                                It.Is<TestEntity>(y => y.Id == default(int)), DomainEvent.Create)).Returns(results);
+
+            Assert.Throws<DomainValidationException>(() => m_model.Save());
         }
 
         [Test]
@@ -130,6 +160,26 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
+        public void GivenModelIsNotNewAndEntityIsInitialized_WhenCallSave_ThenShouldCallValidateEntityOfValidationServiceForUpdateDomainEvent()
+        {
+            m_model.SetEntity(m_entity);
+
+            m_model.Save();
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(m_entity, DomainEvent.Update), Times.Once);
+        }
+
+        [Test]
+        public void GivenModelIsNotNewAndEntityIsNotValid_WhenCallSave_ThenShouldThrowDomainValidationException()
+        {
+            m_model.SetEntity(m_entity);
+            var results = new[] { new ValidationResult("test") };
+            m_validationServiceMock.Setup(x => x.ValidateEntity(m_entity, DomainEvent.Update)).Returns(results);
+
+            Assert.Throws<DomainValidationException>(() => m_model.Save());
+        }
+
+        [Test]
         public void GivenModelIsNotNew_WhenCallSave_ThenShouldCallUpdateOfCommandService()
         {
             m_model.SetEntity(m_entity);
@@ -161,21 +211,41 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void GivenModelEntityIsNotInitialized_WhenCallDelete_ThenShouldThrowInvalidOperationException()
+        public void GivenModelEntityIsNotInitialized_WhenCallDelete_ThenShouldThrowDomainValidationException()
         {
-            Assert.Throws<InvalidOperationException>(() => m_model.Delete());
+            Assert.Throws<DomainValidationException>(() => m_model.Delete());
         }
 
         [Test]
-        public void GivenModelIsNew_WhenCallDelete_ThenShouldThrowInvalidOperationException()
+        public void GivenModelIsNew_WhenCallDelete_ThenShouldThrowDomainValidationException()
         {
             m_model.New();
 
-            Assert.Throws<InvalidOperationException>(() => m_model.Delete());
+            Assert.Throws<DomainValidationException>(() => m_model.Delete());
         }
 
         [Test]
-        public void GivenModelEntityIsInitializedAndModelIsNotNew_WhenCallDelete_ThenShouldCallDeleteOfCommandService()
+        public void GivenModelIsNotNewAndEntityIsInitialized_WhenCallDelete_ThenShouldCallValidateEntityOfValidationServiceForDeleteDomainEvent()
+        {
+            m_model.SetEntity(m_entity);
+
+            m_model.Delete();
+
+            m_validationServiceMock.Verify(x => x.ValidateEntity(m_entity, DomainEvent.Delete), Times.Once);
+        }
+
+        [Test]
+        public void GivenModelIsNotNewAndEntityIsNotValid_WhenCallDelete_ThenShouldThrowDomainValidationException()
+        {
+            m_model.SetEntity(m_entity);
+            var results = new[] { new ValidationResult("test") };
+            m_validationServiceMock.Setup(x => x.ValidateEntity(m_entity, DomainEvent.Delete)).Returns(results);
+
+            Assert.Throws<DomainValidationException>(() => m_model.Delete());
+        }
+
+        [Test]
+        public void GivenModelIsNotNewAndEntityIsInitialized_WhenCallDelete_ThenShouldCallDeleteOfCommandService()
         {
             m_model.SetEntity(m_entity);
 
@@ -274,8 +344,8 @@ namespace SEV.UI.Model.Tests
 
         private class TestModel2 : EditableModel<TestEntity>, ITestModel2
         {
-            public TestModel2(IQueryService queryService, ICommandService commandService)
-                : base(queryService, commandService)
+            public TestModel2(IQueryService queryService, ICommandService commandService, IValidationService validationService)
+                : base(queryService, commandService, validationService)
             {
             }
 

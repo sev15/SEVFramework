@@ -1,7 +1,8 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Data;
 using SEV.Service.Contract;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace SEV.Service.Tests
         private Mock<IUnitOfWorkFactory> m_unitOfWorkFactoryMock;
         private Mock<IUnitOfWork> m_unitOfWorkMock;
         private Mock<IRepository<Entity>> m_repositoryMock;
-        private Mock<IRelationshipManager<Entity>> m_relationshipManagerMock;
+        private Mock<IRelationshipsLoader<Entity>> m_relationshipsLoaderMock;
         private Mock<IQuery<Entity>> m_queryMock;
         private IQueryService m_service;
 
@@ -41,8 +42,8 @@ namespace SEV.Service.Tests
                             .Returns(new RepositoryQuery<Entity>(m_repositoryMock.As<IQueryBuilder<Entity>>().Object));
             m_unitOfWorkMock = new Mock<IUnitOfWork>();
             m_unitOfWorkMock.Setup(x => x.Repository<Entity>()).Returns(m_repositoryMock.Object);
-            m_relationshipManagerMock = new Mock<IRelationshipManager<Entity>>();
-            m_unitOfWorkMock.Setup(x => x.RelationshipManager<Entity>()).Returns(m_relationshipManagerMock.Object);
+            m_relationshipsLoaderMock = new Mock<IRelationshipsLoader<Entity>>();
+            m_unitOfWorkMock.Setup(x => x.RelationshipsLoader<Entity>()).Returns(m_relationshipsLoaderMock.Object);
             m_unitOfWorkFactoryMock = new Mock<IUnitOfWorkFactory>();
             m_unitOfWorkFactoryMock.Setup(x => x.Create()).Returns(m_unitOfWorkMock.Object);
             m_queryMock = new Mock<IQuery<Entity>>();
@@ -93,7 +94,7 @@ namespace SEV.Service.Tests
 
             m_service.Read(includes);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.RelationshipsLoader<Entity>(), Times.Once);
         }
 
         [Test]
@@ -105,7 +106,7 @@ namespace SEV.Service.Tests
 
             m_service.Read(includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entities, includes), Times.Once);
         }
 
         [Test]
@@ -160,7 +161,7 @@ namespace SEV.Service.Tests
 
             m_service.FindById(TEST_ID, includes);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.RelationshipsLoader<Entity>(), Times.Once);
         }
 
         [Test]
@@ -172,7 +173,7 @@ namespace SEV.Service.Tests
 
             m_service.FindById(TEST_ID, includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entity, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entity, includes), Times.Once);
         }
 
         [Test]
@@ -228,7 +229,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByIdList(new[] { TEST_ID }, includes);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.RelationshipsLoader<Entity>(), Times.Once);
         }
 
         [Test]
@@ -240,7 +241,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByIdList(new[] { TEST_ID }, includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entities, includes), Times.Once);
         }
 
         [Test]
@@ -349,7 +350,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByQuery(m_queryMock.Object);
 
-            m_unitOfWorkMock.Verify(x => x.RelationshipManager<Entity>(), Times.Once);
+            m_unitOfWorkMock.Verify(x => x.RelationshipsLoader<Entity>(), Times.Once);
         }
 
         [Test]
@@ -367,7 +368,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByQuery(m_queryMock.Object);
 
-            m_relationshipManagerMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
+            m_relationshipsLoaderMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
                                                             includes), Times.Once);
         }
 
@@ -409,7 +410,7 @@ namespace SEV.Service.Tests
 
             m_service.ReadAsync(includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entities, includes), Times.Once);
         }
 
         [Test]
@@ -440,7 +441,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByIdAsync(TEST_ID, includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entity, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entity, includes), Times.Once);
         }
 
         [Test]
@@ -472,7 +473,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByIdListAsync(new[] { TEST_ID }, includes);
 
-            m_relationshipManagerMock.Verify(x => x.Load(entities, includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entities, includes), Times.Once);
         }
 
         [Test]
@@ -557,7 +558,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByQueryAsync(m_queryMock.Object);
 
-            m_relationshipManagerMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
+            m_relationshipsLoaderMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
                                                             includes), Times.Once);
         }
     }

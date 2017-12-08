@@ -1,14 +1,20 @@
-﻿using System.Threading.Tasks;
+﻿using SEV.Common;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Logic;
 using SEV.Service.Contract;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SEV.Service
 {
     internal class CommandService : Service, ICommandService
     {
-        public CommandService(IUnitOfWorkFactory factory) : base(factory)
+        private readonly IValidationService m_validationService;
+
+        public CommandService(IUnitOfWorkFactory factory, IValidationService validationService) : base(factory)
         {
+            m_validationService = validationService;
         }
 
         public T Create<T>(T entity) where T : Entity
@@ -17,19 +23,36 @@ namespace SEV.Service
 
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Create);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
-                unitOfWork.RelationshipManager<T>().CreateRelatedEntities(entity, newEntity);
+                RaiseEvent<T>(unitOfWork, entity, DomainEvent.Create);
                 unitOfWork.SaveChanges();
             }
 
             return newEntity;
         }
 
+        private void ValidateEntity(Entity entity, DomainEvent domainEvent)
+        {
+            var results = m_validationService.ValidateEntity(entity, domainEvent);
+            if (results.Any())
+            {
+                throw new DomainValidationException(results);
+            }
+        }
+
+        private void RaiseEvent<T>(IUnitOfWork unitOfWork, T entity, DomainEvent domainEvent) where T : Entity
+        {
+            unitOfWork.DomainEventsAggregator().RaiseEvent(new DomainEventArgs<T>(entity, domainEvent, unitOfWork));
+        }
+
         public void Delete<T>(T entity) where T : Entity
         {
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Delete);
                 unitOfWork.Repository<T>().Remove(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
                 unitOfWork.SaveChanges();
             }
         }
@@ -38,8 +61,9 @@ namespace SEV.Service
         {
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Update);
                 unitOfWork.Repository<T>().Update(entity);
-                unitOfWork.RelationshipManager<T>().UpdateRelatedEntities(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
                 unitOfWork.SaveChanges();
             }
         }
@@ -50,8 +74,9 @@ namespace SEV.Service
 
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Create);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
-                unitOfWork.RelationshipManager<T>().CreateRelatedEntities(entity, newEntity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Create);
                 await unitOfWork.SaveChangesAsync();
             }
 
@@ -62,7 +87,9 @@ namespace SEV.Service
         {
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Delete);
                 unitOfWork.Repository<T>().Remove(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
                 await unitOfWork.SaveChangesAsync();
             }
         }
@@ -71,8 +98,9 @@ namespace SEV.Service
         {
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
+                ValidateEntity(entity, DomainEvent.Update);
                 unitOfWork.Repository<T>().Update(entity);
-                unitOfWork.RelationshipManager<T>().UpdateRelatedEntities(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
                 await unitOfWork.SaveChangesAsync();
             }
         }

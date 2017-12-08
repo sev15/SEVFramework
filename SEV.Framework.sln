@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{C34A0EAF-61CD-4CB5-B0C9-71EFD1983F4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Repository", "SEV.Domain.Repository\SEV.Domain.Repository.csproj", "{2D262CA2-2ADD-441C-9AD7-DA377DB42266}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Services", "SEV.Domain.Services\SEV.Domain.Services.csproj", "{2D262CA2-2ADD-441C-9AD7-DA377DB42266}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Service.Contract", "SEV.Service.Contract\SEV.Service.Contract.csproj", "{64832A40-6736-4FB8-9BAF-0F3559532DEA}"
 EndProject
@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Common.Tests", "Tests\S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Model.Tests", "Tests\SEV.Domain.Model.Tests\SEV.Domain.Model.Tests.csproj", "{061C917A-FEC1-4A41-AB59-10B8CF433B1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Repository.Tests", "Tests\SEV.Domain.Repository.Tests\SEV.Domain.Repository.Tests.csproj", "{DE2B0721-CBA8-4701-93C4-C8B59AA85A7F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.Domain.Services.Tests", "Tests\SEV.Domain.Services.Tests\SEV.Domain.Services.Tests.csproj", "{DE2B0721-CBA8-4701-93C4-C8B59AA85A7F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SEV.DI.Tests", "Tests\SEV.DI.Tests\SEV.DI.Tests.csproj", "{6632C36F-6676-4B84-B621-0C5D59223C42}"
 EndProject

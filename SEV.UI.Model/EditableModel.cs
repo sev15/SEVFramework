@@ -1,8 +1,12 @@
-﻿using SEV.Domain.Model;
+﻿using SEV.Common;
+using SEV.Domain.Model;
 using SEV.Service.Contract;
 using SEV.UI.Model.Contract;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -11,19 +15,22 @@ namespace SEV.UI.Model
     public abstract class EditableModel<TEntity> : SingleModel<TEntity>, IEditableModel
         where TEntity : Entity, new()
     {
+        private bool m_hasErrors;
+
         protected ICommandService CommandService { get; }
+        protected IValidationService ValidationService { get; }
 
-        protected EditableModel(IQueryService queryService, ICommandService commandService) : base(queryService)
+        protected EditableModel(IQueryService qservice, ICommandService cservice, IValidationService vservice)
+            : base(qservice)
         {
-            CommandService = commandService;
-            IsNew = false;
+            CommandService = cservice;
+            ValidationService = vservice;
+            m_hasErrors = false;
         }
 
-        public bool IsNew
-        {
-            get;
-            private set;
-        }
+        public override bool IsValid => base.IsValid && !m_hasErrors;
+
+        public bool IsNew { get; private set; }
 
         public virtual void New()
         {
@@ -34,7 +41,7 @@ namespace SEV.UI.Model
 
         public virtual void Save()
         {
-            ValidateOnSave();
+            Validate();
             IsInitialized = false;
 
             if (IsNew)
@@ -50,38 +57,42 @@ namespace SEV.UI.Model
             }
         }
 
-        private void ValidateOnSave()
+        private void Validate(bool isDeleting = false)
         {
-            // TODO : implement Validation..
+            m_hasErrors = false;
+            var results = new List<ValidationResult>();
 
             if (!IsValid)
             {
-                throw new InvalidOperationException("The model is not valid.");
+                results.Add(new ValidationResult("The model is not valid."));
+            }
+            if (isDeleting && IsNew)
+            {
+                results.Add(new ValidationResult("Can not delete a new model."));
+            }
+            var domainEvent = isDeleting ? DomainEvent.Delete : IsNew ? DomainEvent.Create : DomainEvent.Update;
+            var domainResults = ValidationService.ValidateEntity(Entity, domainEvent);
+            if (domainResults.Any())
+            {
+                results.AddRange(domainResults);
+            }
+            if (results.Any())
+            {
+                m_hasErrors = true;
+                throw new DomainValidationException(results);
             }
         }
 
         public virtual void Delete()
         {
-            ValidateOnDelete();
+            Validate(true);
             IsInitialized = false;
             CommandService.Delete(Entity);
         }
 
-        private void ValidateOnDelete()
-        {
-            if (!IsValid)
-            {
-                throw new InvalidOperationException("The model is not valid.");
-            }
-            if (IsNew)
-            {
-                throw new InvalidOperationException("Can not delete a new model.");
-            }
-        }
-
         public virtual async Task SaveAsync()
         {
-            ValidateOnSave();
+            Validate();
             IsInitialized = false;
 
             if (IsNew)
@@ -99,7 +110,7 @@ namespace SEV.UI.Model
 
         public virtual async Task DeleteAsync()
         {
-            ValidateOnDelete();
+            Validate(true);
             IsInitialized = false;
             await CommandService.DeleteAsync(Entity);
         }

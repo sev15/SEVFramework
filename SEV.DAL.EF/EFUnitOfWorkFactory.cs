@@ -1,5 +1,5 @@
 ﻿using Microsoft.Practices.ServiceLocation;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
 
 namespace SEV.DAL.EF
 {

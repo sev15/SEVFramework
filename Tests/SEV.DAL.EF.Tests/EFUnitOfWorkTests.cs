@@ -3,7 +3,9 @@ using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Data;
+using SEV.Domain.Services.Logic;
 
 namespace SEV.DAL.EF.Tests
 {
@@ -39,11 +41,19 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
+        public void WhenCallDomainEventsAggregator_ThenShouldReturnInstanceOfDomainEventsAggregator()
+        {
+            var result = m_unitOfWork.DomainEventsAggregator();
+
+            Assert.That(result, Is.InstanceOf<DomainEventsAggregator>());
+        }
+
+        [Test]
         public void WhenCallRelationshipManager_ThenShouldReturnInstanceOfEFRelationshipManager()
         {
-            var result = m_unitOfWork.RelationshipManager<Entity>();
+            var result = m_unitOfWork.RelationshipsLoader<Entity>();
 
-            Assert.That(result, Is.InstanceOf<EFRelationshipManager<Entity>>());
+            Assert.That(result, Is.InstanceOf<EFRelationshipsLoader<Entity>>());
         }
 
         [Test]

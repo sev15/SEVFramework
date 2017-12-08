@@ -1,7 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SEV.DI;
-using SEV.Domain.Repository;
+using SEV.Domain.Services;
 
 namespace SEV.DAL.EF.DI.Tests
 {

@@ -1,4 +1,4 @@
-﻿namespace SEV.Domain.Repository
+﻿namespace SEV.Domain.Services.Data
 {
     public interface IDomainQueryHandler
     {

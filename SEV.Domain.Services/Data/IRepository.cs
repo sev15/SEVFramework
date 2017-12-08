@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SEV.Domain.Repository
+namespace SEV.Domain.Services.Data
 {
     public interface IRepository<TEntity> where TEntity : class
     {

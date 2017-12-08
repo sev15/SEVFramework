@@ -7,8 +7,8 @@
     <ProjectGuid>{2D262CA2-2ADD-441C-9AD7-DA377DB42266}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SEV.Domain.Repository</RootNamespace>
-    <AssemblyName>SEV.Domain.Repository</AssemblyName>
+    <RootNamespace>SEV.Domain.Services</RootNamespace>
+    <AssemblyName>SEV.Domain.Services</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -35,6 +35,7 @@
       <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,19 +44,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CreateEntityEventArgs.cs" />
-    <Compile Include="EntityActionEventArgs.cs" />
-    <Compile Include="IDomainQueryHandler.cs" />
-    <Compile Include="IQueryBuilder.cs" />
-    <Compile Include="IRelatedEntitiesCreator.cs" />
-    <Compile Include="IRelatedEntitiesUpdater.cs" />
-    <Compile Include="IRelationshipManager.cs" />
-    <Compile Include="IRepository.cs" />
+    <Compile Include="Data\IDomainQueryHandler.cs" />
+    <Compile Include="Data\IQueryBuilder.cs" />
+    <Compile Include="Data\IRelationshipsLoader.cs" />
+    <Compile Include="Data\IRepository.cs" />
     <Compile Include="IUnitOfWorkFactory.cs" />
     <Compile Include="IUnitOfWork.cs" />
+    <Compile Include="Logic\DomainEventArgs.cs" />
+    <Compile Include="Logic\DomainEventsAggregator.cs" />
+    <Compile Include="Logic\BusinessProcess.cs" />
+    <Compile Include="Logic\DomainEventHandler.cs" />
+    <Compile Include="Logic\IDomainEventsAggregator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryBuilder.cs" />
-    <Compile Include="RepositoryQuery.cs" />
+    <Compile Include="Data\QueryBuilder.cs" />
+    <Compile Include="Data\RepositoryQuery.cs" />
+    <Compile Include="Validation\BusinessRule.cs" />
+    <Compile Include="Validation\BusinessRuleProvider.cs" />
+    <Compile Include="Validation\IBusinessRuleProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SEV.Domain.Model\SEV.Domain.Model.csproj">
@@ -66,6 +71,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

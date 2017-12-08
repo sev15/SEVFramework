@@ -29,7 +29,8 @@ namespace SEV.UI.Model.Tests
         private int m_pcCount;
 
         private Mock<IQueryService> m_queryServiceMock;
-        private Mock<ICommandService> m_commandServiceMock;  
+        private Mock<ICommandService> m_commandServiceMock;
+        private Mock<IValidationService> m_validationServiceMock;
         private Mock<IServiceLocator> m_serviceLocatorMock;
         private ITest_Model m_model;
 
@@ -57,6 +58,7 @@ namespace SEV.UI.Model.Tests
 
             m_queryServiceMock = new Mock<IQueryService>();
             m_commandServiceMock = new Mock<ICommandService>();
+            m_validationServiceMock = new Mock<IValidationService>();
 
             m_queryServiceMock.Setup(x => x.FindById<Test_Entity>(IdValue)).Returns(new Test_Entity
             {
@@ -69,8 +71,8 @@ namespace SEV.UI.Model.Tests
             m_queryServiceMock.Setup(x => x.FindById<Test_Entity>("2")).Returns(new Test_Entity { Id = 2 });
 
             m_serviceLocatorMock = new Mock<IServiceLocator>();
-            m_serviceLocatorMock.Setup(x => x.GetInstance<ITest_Model>())
-                                .Returns(() => new Test_Model(m_queryServiceMock.Object, m_commandServiceMock.Object));
+            m_serviceLocatorMock.Setup(x => x.GetInstance<ITest_Model>()).Returns(() =>
+                new Test_Model(m_queryServiceMock.Object, m_commandServiceMock.Object, m_validationServiceMock.Object));
             ServiceLocator.SetLocatorProvider(() => m_serviceLocatorMock.Object);
         }
 
@@ -207,8 +209,8 @@ namespace SEV.UI.Model.Tests
 
         private class Test_Model : EditableModel<Test_Entity>, ITest_Model
         {
-            public Test_Model(IQueryService queryService, ICommandService commandService)
-                : base(queryService, commandService)
+            public Test_Model(IQueryService queryService, ICommandService commandService, IValidationService validationService)
+                : base(queryService, commandService, validationService)
             {
             }
 

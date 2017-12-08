@@ -41,6 +41,7 @@
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,12 +54,17 @@
     <Compile Include="DIContainerExtentionsTests.cs" />
     <Compile Include="QueryServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValidationServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\..\SEV.Common\SEV.Common.csproj">
+      <Project>{01E9A063-81CE-4813-BA6A-4AA955D2F9D4}</Project>
+      <Name>SEV.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SEV.DI\SEV.DI.csproj">
       <Project>{56A69401-53D3-4E37-BE22-6CBBDE84E347}</Project>
       <Name>SEV.DI</Name>
@@ -67,9 +73,9 @@
       <Project>{530c10e0-f51f-4a8c-9821-c5c9366be728}</Project>
       <Name>SEV.Domain.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SEV.Domain.Repository\SEV.Domain.Repository.csproj">
+    <ProjectReference Include="..\..\SEV.Domain.Services\SEV.Domain.Services.csproj">
       <Project>{2d262ca2-2add-441c-9ad7-da377db42266}</Project>
-      <Name>SEV.Domain.Repository</Name>
+      <Name>SEV.Domain.Services</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SEV.Service.Contract\SEV.Service.Contract.csproj">
       <Project>{64832A40-6736-4FB8-9BAF-0F3559532DEA}</Project>

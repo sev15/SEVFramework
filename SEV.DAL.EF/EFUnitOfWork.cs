@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.Practices.ServiceLocation;
-using SEV.Domain.Repository;
 using SEV.Domain.Model;
+using SEV.Domain.Services;
+using SEV.Domain.Services.Data;
+using SEV.Domain.Services.Logic;
 
 namespace SEV.DAL.EF
 {
@@ -19,9 +21,14 @@ namespace SEV.DAL.EF
             return new EFRepository<TEntity>(m_context);
         }
 
-        public IRelationshipManager<TEntity> RelationshipManager<TEntity>() where TEntity : Entity
+        public IDomainEventsAggregator DomainEventsAggregator()
         {
-            return new EFRelationshipManager<TEntity>(m_context);
+            return new DomainEventsAggregator();
+        }
+
+        public IRelationshipsLoader<TEntity> RelationshipsLoader<TEntity>() where TEntity : Entity
+        {
+            return new EFRelationshipsLoader<TEntity>(m_context);
         }
 
         public IDomainQueryHandler<TResult> CreateDomainQueryHandler<TResult>(string queryName)
