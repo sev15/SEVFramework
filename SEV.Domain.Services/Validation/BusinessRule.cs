@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using SEV.Domain.Model;
 
 namespace SEV.Domain.Services.Validation

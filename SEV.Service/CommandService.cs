@@ -24,9 +24,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Create);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
-                RaiseEvent<T>(unitOfWork, entity, DomainEvent.Create);
                 unitOfWork.SaveChanges();
+                stripper.UnStrip(newEntity);
+                RaiseEvent(unitOfWork, newEntity, DomainEvent.Create);
             }
 
             return newEntity;
@@ -51,9 +54,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Delete);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 unitOfWork.Repository<T>().Remove(entity);
-                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
                 unitOfWork.SaveChanges();
+                stripper.UnStrip(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
             }
         }
 
@@ -62,9 +68,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Update);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 unitOfWork.Repository<T>().Update(entity);
-                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
                 unitOfWork.SaveChanges();
+                stripper.UnStrip(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
             }
         }
 
@@ -75,9 +84,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Create);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
-                RaiseEvent(unitOfWork, entity, DomainEvent.Create);
                 await unitOfWork.SaveChangesAsync();
+                stripper.UnStrip(newEntity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Create);
             }
 
             return newEntity;
@@ -88,9 +100,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Delete);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 unitOfWork.Repository<T>().Remove(entity);
-                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
                 await unitOfWork.SaveChangesAsync();
+                stripper.UnStrip(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Delete);
             }
         }
 
@@ -99,9 +114,12 @@ namespace SEV.Service
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
                 ValidateEntity(entity, DomainEvent.Update);
+                var stripper = unitOfWork.RelationshipsStripper<T>();
+                stripper.Strip(entity);
                 unitOfWork.Repository<T>().Update(entity);
-                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
                 await unitOfWork.SaveChangesAsync();
+                stripper.UnStrip(entity);
+                RaiseEvent(unitOfWork, entity, DomainEvent.Update);
             }
         }
     }

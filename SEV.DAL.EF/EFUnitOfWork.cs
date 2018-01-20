@@ -21,6 +21,11 @@ namespace SEV.DAL.EF
             return new EFRepository<TEntity>(m_context);
         }
 
+        public IRelationshipsStripper<TEntity> RelationshipsStripper<TEntity>() where TEntity : Entity
+        {
+            return new RelationshipsStripper<TEntity>();
+        }
+
         public IDomainEventsAggregator DomainEventsAggregator()
         {
             return new DomainEventsAggregator();
