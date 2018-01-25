@@ -368,8 +368,7 @@ namespace SEV.Service.Tests
 
             m_service.FindByQuery(m_queryMock.Object);
 
-            m_relationshipsLoaderMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
-                                                            includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(entity, includes), Times.Once);
         }
 
         [Test]
@@ -554,12 +553,12 @@ namespace SEV.Service.Tests
             m_queryMock.SetupGet(x => x.Includes).Returns(includes);
             Entity entity = new Mock<Entity> { CallBase = true }.Object;
             queryBuilderMock.Setup(x => x.BuildQuery(filter, null, null, null))
-                            .Returns(new List<Entity> { entity }.AsQueryable());
+                            .Returns(new List<Entity> { entity, entity }.AsQueryable());
 
             m_service.FindByQueryAsync(m_queryMock.Object);
 
-            m_relationshipsLoaderMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Single().Equals(entity)),
-                                                            includes), Times.Once);
+            m_relationshipsLoaderMock.Verify(x => x.Load(It.Is<IEnumerable<Entity>>(y => y.Count() == 2),
+                                                         includes), Times.Once);
         }
     }
 }

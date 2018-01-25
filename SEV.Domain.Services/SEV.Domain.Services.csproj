@@ -65,6 +65,10 @@
     <Compile Include="Validation\IBusinessRuleProvider.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SEV.DI\SEV.DI.csproj">
+      <Project>{56a69401-53d3-4e37-be22-6cbbde84e347}</Project>
+      <Name>SEV.DI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SEV.Domain.Model\SEV.Domain.Model.csproj">
       <Project>{530c10e0-f51f-4a8c-9821-c5c9366be728}</Project>
       <Name>SEV.Domain.Model</Name>

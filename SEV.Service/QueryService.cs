@@ -70,7 +70,7 @@ namespace SEV.Service
 
         public IEnumerable<T> FindByQuery<T>(IQuery<T> query) where T : Entity
         {
-            IEnumerable<T> entities;
+            IList<T> entities;
 
             using (IUnitOfWork unitOfWork = CreateUnitOfWork())
             {
@@ -80,7 +80,7 @@ namespace SEV.Service
                 {
                     repositoryQuery = repositoryQuery.Filter(query.Filter);
                 }
-                if ((query.Ordering != null))
+                if (query.Ordering != null)
                 {
                     foreach (var ordering in query.Ordering)
                     {
@@ -90,7 +90,6 @@ namespace SEV.Service
                         repositoryQuery = repositoryQuery.OrderBy(order, orderBy, descending);
                     }
                 }
-
                 if (query.PageCount.HasValue && query.PageSize.HasValue)
                 {
                     entities = repositoryQuery.GetPage(query.PageCount.Value, query.PageSize.Value);
@@ -99,10 +98,16 @@ namespace SEV.Service
                 {
                     entities = repositoryQuery.Get();
                 }
-
                 if (HasToLoadRelationships(entities, query.Includes))
                 {
-                    unitOfWork.RelationshipsLoader<T>().Load(entities, query.Includes);
+                    if (entities.Count == 1)
+                    {
+                        unitOfWork.RelationshipsLoader<T>().Load(entities.Single(), query.Includes);
+                    }
+                    else
+                    {
+                        unitOfWork.RelationshipsLoader<T>().Load(entities, query.Includes);
+                    }
                 }
             }
 

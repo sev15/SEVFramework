@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using SEV.Domain.Model;
+using SEV.DI;
 
 namespace SEV.Domain.Services.Logic
 {
@@ -8,14 +8,10 @@ namespace SEV.Domain.Services.Logic
     {
         public void RaiseEvent<TEntity>(DomainEventArgs<TEntity> args) where TEntity : Entity
         {
-            try
+            var handler = ServiceLocator.Current.Resolve<DomainEventHandler<TEntity>>(args.Event.ToString());
+            if (handler != null)
             {
-                var handler = ServiceLocator.Current.GetInstance<DomainEventHandler<TEntity>>(args.Event.ToString());
-                handler?.Handle(args);
-            }
-            catch (ActivationException)
-            {
-                //Do nothing when there is no handler registered for specified TEntity & DomainEvent
+                handler.Handle(args);
             }
         }
     }

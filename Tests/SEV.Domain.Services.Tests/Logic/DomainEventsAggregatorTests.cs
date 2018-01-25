@@ -42,14 +42,14 @@ namespace SEV.Domain.Services.Logic.Tests
         {
             m_eventsAggregator.RaiseEvent(m_eventArgs);
 
-            m_serviceLocatorMock.Verify(x => x.GetInstance<DomainEventHandler<Entity>>(TestEvent.ToString()), Times.Once);
+            m_serviceLocatorMock.Verify(x => x.GetInstance(typeof(DomainEventHandler<Entity>), TestEvent.ToString()), Times.Once);
         }
 
         [Test]
         public void GivenDomainEventHandlerIsFound_WhenCallRaiseEvent_ThenShouldCallHandleOfDomainEventHandler()
         {
             var eventHandlerMock = new Mock<DomainEventHandler<Entity>>();
-            m_serviceLocatorMock.Setup(x => x.GetInstance<DomainEventHandler<Entity>>(TestEvent.ToString()))
+            m_serviceLocatorMock.Setup(x => x.GetInstance(typeof(DomainEventHandler<Entity>), TestEvent.ToString()))
                                 .Returns(eventHandlerMock.Object);
 
             m_eventsAggregator.RaiseEvent(m_eventArgs);

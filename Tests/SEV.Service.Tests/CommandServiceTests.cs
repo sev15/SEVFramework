@@ -19,6 +19,7 @@ namespace SEV.Service.Tests
         private Entity m_entity;
         private Mock<IRepository<Entity>> m_entityRepositoryMock;
         private Mock<IDomainEventsAggregator> m_eventsAggregatorMock;
+        private Mock<IRelationshipsStripper<Entity>> m_relationshipsStripperMock;
         private ICommandService m_service;
 
         #region SetUp
@@ -38,6 +39,8 @@ namespace SEV.Service.Tests
             m_entityRepositoryMock.Setup(x => x.Insert(m_entity)).Returns(m_entity);
             m_unitOfWorkMock = new Mock<IUnitOfWork>();
             m_unitOfWorkMock.Setup(x => x.Repository<Entity>()).Returns(m_entityRepositoryMock.Object);
+            m_relationshipsStripperMock = new Mock<IRelationshipsStripper<Entity>>();
+            m_unitOfWorkMock.Setup(x => x.RelationshipsStripper<Entity>()).Returns(m_relationshipsStripperMock.Object);
             m_eventsAggregatorMock = new Mock<IDomainEventsAggregator>();
             m_unitOfWorkMock.Setup(x => x.DomainEventsAggregator()).Returns(m_eventsAggregatorMock.Object);
             m_unitOfWorkFactoryMock = new Mock<IUnitOfWorkFactory>();
