@@ -1,7 +1,7 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(ProjectDir)\bin\SEV.Samples.Entities.dll" #>
-<#@ assembly name="$(ProjectDir)\bin\SEV.Domain.Model.dll" #>
+<#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Samples.Domain.Model.dll" #>
+<#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Domain.Model.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.IO" #>
@@ -27,7 +27,6 @@
 #>using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Linq;
 using SEV.Samples.Entities;
 using SEV.Samples.UI.Model.Contract;
 using SEV.Service.Contract;
@@ -58,18 +57,24 @@ namespace SEV.Samples.UI.Model
 <#+ 
   private IEnumerable<Type> GetModelTypes()
   {
-    string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "bin", "SEV.Samples.Entities.dll");
+    string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "..", "SEV.Samples.Domain.Model",
+									   "bin", "SEV.Samples.Domain.Model.dll");
+    var entityType = typeof(SEV.Domain.Model.Entity);
 
-	return Assembly.LoadFrom(assemblyPath).GetTypes();
+	return Assembly.LoadFrom(assemblyPath).GetTypes().Where(t => t.IsSubclassOf(entityType) && !t.IsAbstract);
   }
 
   private void SaveGeneratedCodeAsFile(string fileName)
   {
-    string dir = Path.GetDirectoryName(Host.TemplateFile);
-  
-    string outputFilePath = Path.Combine(dir, fileName);
-    File.WriteAllText(outputFilePath, GenerationEnvironment.ToString()); 
- 
+    string hostDir = Path.GetDirectoryName(Host.TemplateFile);
+    string outputDir = Path.Combine(hostDir, "GeneratedModels");
+    if (!System.IO.Directory.Exists(outputDir))
+    {
+        System.IO.Directory.CreateDirectory(outputDir);
+    }
+    string outputFilePath = Path.Combine(outputDir, fileName);
+    System.IO.File.WriteAllText(outputFilePath, GenerationEnvironment.ToString()); 
+
     GenerationEnvironment.Clear();
   }
 
@@ -139,7 +144,10 @@ namespace SEV.Samples.UI.Model
       var itemType = property.PropertyType.GenericTypeArguments[0].Name;
       var propertyName= property.Name;
 #>
-        public IList<I<#= itemType #>Model> <#= propertyName #>  => GetCollection<I<#= itemType #>Model, <#= itemType #>>();
+        public IList<I<#= itemType #>Model> <#= propertyName #>
+        {
+            get { return GetCollection<I<#= itemType #>Model, <#= itemType #>>(); }
+        }
 
 <#+  
     }

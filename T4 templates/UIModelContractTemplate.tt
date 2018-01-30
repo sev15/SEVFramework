@@ -1,7 +1,7 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(ProjectDir)\bin\SEV.Samples.Entities.dll" #>
-<#@ assembly name="$(ProjectDir)\bin\SEV.Domain.Model.dll" #>
+<#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Samples.Domain.Model.dll" #>
+<#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Domain.Model.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.IO" #>
@@ -13,20 +13,33 @@
 <#@ import namespace="Microsoft.CSharp" #>
 <#@ output extension=".cs" #>
 <#
-  foreach (var modelType in GetModelTypes())
+  var baseEntityType = typeof(SEV.Domain.Model.Entity);
+  var entityTypes = GetEntityTypes(baseEntityType);
+
+  foreach (var entityType in entityTypes)
   {
-	var proporties =  modelType.GetProperties();
+	var proporties =  entityType.GetProperties();
 
     var simpleProperties = proporties.Where(p => p.PropertyType.IsValueType || p.PropertyType == typeof(string)).ToList();
 
-    var referenceProperties = proporties.Where(p => p.PropertyType.IsSubclassOf(typeof(SEV.Domain.Model.Entity))).ToList();
+    var referenceProperties = proporties.Where(p => p.PropertyType.IsSubclassOf(baseEntityType)).ToList();
 
     var collectionProperties = proporties.Where(p => p.PropertyType.IsGenericType &&
 													 p.PropertyType.Name.StartsWith("ICollection")).ToList();
 
+    var parentEntityType = entityTypes.FirstOrDefault(t => entityType.IsSubclassOf(t));
+    if (parentEntityType != null)
+    {
+        var parentProporties =  parentEntityType.GetProperties();
+        simpleProperties = simpleProperties.Where(p => parentProporties.All(x => x.Name != p.Name)).ToList();
+        referenceProperties = referenceProperties.Where(p => parentProporties.All(x => x.Name != p.Name)).ToList();
+        collectionProperties = collectionProperties.Where(p => parentProporties.All(x => x.Name != p.Name)).ToList();
+    }
+
 #>namespace SEV.Samples.UI.Model.Contract
 {
-    public interface I<#=modelType.Name#>Model : SEV.UI.Model.Contract.IEditableModel
+    public partial interface I<#=entityType.Name#>Model : SEV.UI.Model.Contract.IEditableModel<#if (parentEntityType != null) {this.Write(string.Format(", I{0}Model", parentEntityType.Name));}#>
+
     {
 <#
     GenerateSimpleProperties(simpleProperties);
@@ -43,18 +56,24 @@
 <#+ 
   private IEnumerable<Type> GetModelTypes()
   {
-    string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "bin", "SEV.Samples.Entities.dll");
+    string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "..", "SEV.Samples.Domain.Model",
+									   "bin", "SEV.Samples.Domain.Model.dll");
+    var entityType = typeof(SEV.Domain.Model.Entity);
 
-	return Assembly.LoadFrom(assemblyPath).GetTypes();
+	return Assembly.LoadFrom(assemblyPath).GetTypes().Where(t => t.IsSubclassOf(entityType) && !t.IsAbstract);
   }
 
   private void SaveGeneratedCodeAsFile(string fileName)
   {
-    string dir = Path.GetDirectoryName(Host.TemplateFile);
-  
-    string outputFilePath = Path.Combine(dir, fileName);
-    File.WriteAllText(outputFilePath, GenerationEnvironment.ToString()); 
- 
+    string hostDir = Path.GetDirectoryName(Host.TemplateFile);
+    string outputDir = Path.Combine(hostDir, "GeneratedModelContracts");
+    if (!System.IO.Directory.Exists(outputDir))
+    {
+        System.IO.Directory.CreateDirectory(outputDir);
+    }
+    string outputFilePath = Path.Combine(outputDir, fileName);
+    System.IO.File.WriteAllText(outputFilePath, GenerationEnvironment.ToString()); 
+
     GenerationEnvironment.Clear();
   }
 
