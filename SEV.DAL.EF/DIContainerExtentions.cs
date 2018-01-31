@@ -10,7 +10,6 @@ namespace SEV.DAL.EF.DI
         {
             container.Register<IUnitOfWorkFactory, EFUnitOfWorkFactory>();
             container.Register<IRepositoryFactory, EFRepositoryFactory>();
-            container.Register<IRelatedEntitiesStateAdjuster, EFRelatedEntitiesStateAdjuster>();
             container.Register<IBusinessRuleProvider, BusinessRuleProvider>();
 
             return container;

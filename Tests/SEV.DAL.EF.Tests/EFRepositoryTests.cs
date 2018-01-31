@@ -268,34 +268,6 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void WhenCallInsert_ThenShouldCallGetInstanceOfServiceLocatorForIRelatedEntitiesStateAdjuster()
-        {
-            var serviceLocatorMock = new Mock<IServiceLocator>();
-            serviceLocatorMock.Setup(x => x.GetInstance<IRelatedEntitiesStateAdjuster>())
-                              .Returns(new Mock<IRelatedEntitiesStateAdjuster>().Object);
-            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
-            var entity = new Mock<Entity>().Object;
-
-            m_repository.Insert(entity);
-
-            serviceLocatorMock.Verify(x => x.GetInstance<IRelatedEntitiesStateAdjuster>(), Times.Once);
-        }
-
-        [Test]
-        public void WhenCallInsert_ThenShouldCallAttachRelatedEntitiesOfRelatedEntitiesStateAdjuster()
-        {
-            var serviceLocatorMock = new Mock<IServiceLocator>();
-            var adjusterMock = new Mock<IRelatedEntitiesStateAdjuster>();
-            serviceLocatorMock.Setup(x => x.GetInstance<IRelatedEntitiesStateAdjuster>()).Returns(adjusterMock.Object);
-            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
-            var entity = new Mock<Entity>().Object;
-
-            m_repository.Insert(entity);
-
-            adjusterMock.Verify(x => x.AttachRelatedEntities(entity, m_dbContextMock.Object), Times.Once);
-        }
-
-        [Test]
         public void WhenCallInsert_ThenShouldCallAddOfDbSet()
         {
             var serviceLocatorMock = new Mock<IServiceLocator>();

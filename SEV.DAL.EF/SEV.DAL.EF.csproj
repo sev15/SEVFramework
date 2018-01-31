@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="DIContainerExtentions.cs" />
     <Compile Include="EFRelationshipsLoader.cs" />
+    <Compile Include="EFRelationshipsStripper.cs" />
     <Compile Include="EFRepository.cs" />
     <Compile Include="EFRepositoryFactory.cs" />
     <Compile Include="EFUnitOfWorkFactory.cs" />

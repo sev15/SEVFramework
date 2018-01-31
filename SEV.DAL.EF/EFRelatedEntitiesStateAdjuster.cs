@@ -7,7 +7,14 @@ namespace SEV.DAL.EF
 {
     public class EFRelatedEntitiesStateAdjuster : IRelatedEntitiesStateAdjuster
     {
-        public void AttachRelatedEntities<TEntity>(TEntity entity, IDbContext context) where TEntity : Entity
+        private readonly IDbContext m_context;
+
+        public EFRelatedEntitiesStateAdjuster(IDbContext context)
+        {
+            m_context = context;
+        }
+
+        public void AttachRelatedEntities<TEntity>(TEntity entity) where TEntity : Entity
         {
             PropertyInfo[] relatedEntitiesProperties =
                     typeof(TEntity).GetProperties().Where(x => x.PropertyType.IsSubclassOf(typeof(Entity))).ToArray();
@@ -16,7 +23,7 @@ namespace SEV.DAL.EF
                 return;
             }
 
-            var dbContext = (DbContext)context;
+            var dbContext = (DbContext)m_context;
 
             foreach (var propertyInfo in relatedEntitiesProperties)
             {

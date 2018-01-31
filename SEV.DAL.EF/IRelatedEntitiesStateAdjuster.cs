@@ -2,7 +2,6 @@
 {
     public interface IRelatedEntitiesStateAdjuster
     {
-        void AttachRelatedEntities<TEntity>(TEntity entity, IDbContext context)
-            where TEntity : SEV.Domain.Model.Entity;
+        void AttachRelatedEntities<TEntity>(TEntity entity) where TEntity : SEV.Domain.Model.Entity;
     }
 }

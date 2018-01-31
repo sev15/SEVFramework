@@ -78,14 +78,7 @@ namespace SEV.DAL.EF
 
         public TEntity Insert(TEntity entity)
         {
-            AttachRelatedEntities(entity);
             return m_dbSet.Add(entity);
-        }
-
-        private void AttachRelatedEntities(TEntity entity)
-        {
-            var adjuster = ServiceLocator.Current.GetInstance<IRelatedEntitiesStateAdjuster>();
-            adjuster.AttachRelatedEntities(entity, m_context);
         }
 
         public void Remove(TEntity entity)

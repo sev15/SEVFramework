@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="DIContainerExtentionsTests.cs" />
     <Compile Include="EFRelationshipsLoaderTests.cs" />
+    <Compile Include="EFRelationshipsStripperTests.cs" />
     <Compile Include="EFRepositoryFactoryTests.cs" />
     <Compile Include="EFRepositoryTests.cs" />
     <Compile Include="EFUnitOfWorkFactoryTests.cs" />

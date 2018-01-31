@@ -23,7 +23,7 @@ namespace SEV.DAL.EF
 
         public IRelationshipsStripper<TEntity> RelationshipsStripper<TEntity>() where TEntity : Entity
         {
-            return new RelationshipsStripper<TEntity>();
+            return new EFRelationshipsStripper<TEntity>(new EFRelatedEntitiesStateAdjuster(m_context));
         }
 
         public IDomainEventsAggregator DomainEventsAggregator()
@@ -44,7 +44,7 @@ namespace SEV.DAL.EF
                 return (IDomainQueryHandler<TResult>)handler;
             }
 
-            throw new InvalidOperationException($"Invalid result type for '{queryName}' query");
+            throw new InvalidOperationException(string.Format("Invalid result type for '{0}' query", queryName));
         }
 
         public void SaveChanges()
