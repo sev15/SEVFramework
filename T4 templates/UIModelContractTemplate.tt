@@ -8,7 +8,6 @@
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="SEV.Samples.Entities" #>
 <#@ import namespace="System.CodeDom" #>
 <#@ import namespace="Microsoft.CSharp" #>
 <#@ output extension=".cs" #>
@@ -47,20 +46,23 @@
 	GenerateCollectionProperties(collectionProperties);
 #>
     }
+
+	public interface I<#=entityType.Name#>ListModel : SEV.UI.Model.Contract.IListModel<I<#=entityType.Name#>Model>
+    {
+    }
 }
 <#  
-    SaveGeneratedCodeAsFile("I" + modelType.Name + "Model.g.cs");
+    SaveGeneratedCodeAsFile("I" + entityType.Name + "Model.g.cs");
   }
 #>
 
 <#+ 
-  private IEnumerable<Type> GetModelTypes()
+  private IEnumerable<Type> GetEntityTypes(Type baseEntityType)
   {
     string assemblyPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "..", "SEV.Samples.Domain.Model",
 									   "bin", "SEV.Samples.Domain.Model.dll");
-    var entityType = typeof(SEV.Domain.Model.Entity);
 
-	return Assembly.LoadFrom(assemblyPath).GetTypes().Where(t => t.IsSubclassOf(entityType) && !t.IsAbstract);
+	return Assembly.LoadFrom(assemblyPath).GetTypes().Where(t => t.IsSubclassOf(baseEntityType) && !t.IsAbstract);
   }
 
   private void SaveGeneratedCodeAsFile(string fileName)

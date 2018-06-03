@@ -51,15 +51,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DIContainerExtentions.cs" />
+    <Compile Include="RelationshipManager\EFCreateRelationshipManager.cs" />
+    <Compile Include="RelationshipManager\EFDeleteRelationshipManager.cs" />
+    <Compile Include="RelationshipManager\EFRelationshipManager.cs" />
+    <Compile Include="RelationshipManager\EFRelationshipManagerFactory.cs" />
     <Compile Include="EFRelationshipsLoader.cs" />
     <Compile Include="EFRelationshipsStripper.cs" />
     <Compile Include="EFRepository.cs" />
     <Compile Include="EFRepositoryFactory.cs" />
     <Compile Include="EFUnitOfWorkFactory.cs" />
-    <Compile Include="EntityAssociationsUpdater.cs" />
-    <Compile Include="IRelatedEntitiesStateAdjuster.cs" />
+    <Compile Include="RelationshipManager\EFUpdateRelationshipManager.cs" />
+    <Compile Include="RelationshipManager\IEFRelationshipManager.cs" />
+    <Compile Include="RelationshipManager\IEFRelationshipManagerFactory.cs" />
     <Compile Include="IRepositoryFactory.cs" />
-    <Compile Include="EFRelatedEntitiesStateAdjuster.cs" />
+    <Compile Include="RelationshipManager\IReferenceContainer.cs" />
+    <Compile Include="RelationshipManager\ReferenceContainer.cs" />
     <Compile Include="SEVDbContext.cs" />
     <Compile Include="IDbContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,6 +94,7 @@
       <Name>SEV.Domain.Services</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

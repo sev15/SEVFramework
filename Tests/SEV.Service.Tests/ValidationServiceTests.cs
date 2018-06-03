@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
 using SEV.Domain.Model;
 using SEV.Domain.Services.Validation;
 using SEV.Service.Contract;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace SEV.Service.Tests
 {
@@ -85,7 +85,6 @@ namespace SEV.Service.Tests
 
             Assert.That(results.Any(), Is.False);
         }
-
 
         public class TestEntity : Entity
         {

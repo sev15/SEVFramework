@@ -1,8 +1,4 @@
-﻿using System;
-using System.Data.Entity.Migrations;
-using System.IO;
-using System.Linq;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using SEV.DAL.EF;
 using SEV.DAL.EF.DI;
@@ -11,6 +7,10 @@ using SEV.DI.LightInject;
 using SEV.FWK.UI.Model.Tests;
 using SEV.Service.DI;
 using SEV.UI.Model;
+using System;
+using System.Data.Entity.Migrations;
+using System.IO;
+using System.Linq;
 
 namespace SEV.FWK.Service.Tests
 {
@@ -29,7 +29,6 @@ namespace SEV.FWK.Service.Tests
             container.RegisterDomainServices();
             container.RegisterAplicationServices();
             container.Register<IDbContext, TestDbContext>();
-            container.Register<EntityAssociationsUpdater, TestEntityAssociationsUpdater>(typeof(TestEntity).FullName);
             container.Register<IParentEntityFilterProvider, ParentEntityFilterProvider>();
             container.Register<ITestModel, TestModel>();
             container.Register<ITestListModel, TestListModel>();

@@ -1,5 +1,6 @@
 ﻿<#@ template debug="false" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
+<#@ assembly name="System.ComponentModel.DataAnnotations" #>
 <#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Samples.Domain.Model.dll" #>
 <#@ assembly name="$(ProjectDir)\..\SEV.Samples.Domain.Model\bin\SEV.Domain.Model.dll" #>
 <#@ import namespace="System.Linq" #>
@@ -8,9 +9,10 @@
 <#@ import namespace="System.Reflection" #>
 <#@ import namespace="System.Collections" #>
 <#@ import namespace="System.Collections.Generic" #>
-<#@ import namespace="SEV.Samples.Entities" #>
+<#@ import namespace="SEV.Domain.Model" #>
 <#@ import namespace="System.CodeDom" #>
 <#@ import namespace="Microsoft.CSharp" #>
+<#@ import namespace="System.ComponentModel.DataAnnotations" #>
 <#@ output extension=".cs" #>
 <#
   foreach (var modelType in GetModelTypes())
@@ -27,14 +29,14 @@
 #>using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using SEV.Samples.Entities;
+using SEV.Samples.Domain.Model;
 using SEV.Samples.UI.Model.Contract;
 using SEV.Service.Contract;
 using SEV.UI.Model;
 
 namespace SEV.Samples.UI.Model
 {
-    [GeneratedCode("SEV.FWK.UI.Model", "0.5.0.0")]
+    [GeneratedCode("SEV.FWK.UI.Model", "0.5.0.2")]
     public partial class <#=modelType.Name#>Model : EditableModel<<#=modelType.Name#>>, I<#=modelType.Name#>Model
     {
         public <#=modelType.Name#>Model(IQueryService qservice, ICommandService cservice, IValidationService vservice)
@@ -46,6 +48,29 @@ namespace SEV.Samples.UI.Model
     GenerateSimpleProperties(simpleProperties);
 	GenerateReferenceProperties(referenceProperties);
 	GenerateCollectionProperties(collectionProperties);
+
+	var parentProperty = referenceProperties.SingleOrDefault(p => p.GetCustomAttributes(false).Any(a => a is ParentAttribute));
+#>
+    }
+
+    public partial class <#=modelType.Name#>ListModel : ListModel<I<#=modelType.Name#>Model, <#=modelType.Name#>>, I<#=modelType.Name#>ListModel
+    {
+<#  if (parentProperty == null)
+    {
+#>
+        public <#=modelType.Name#>ListModel(IQueryService queryService) : base(queryService)
+        {
+        }
+<#  }
+    else
+    {
+#>
+        public <#=modelType.Name#>ListModel(IQueryService queryService, IParentEntityFilterProvider filterProvider)
+            : base(queryService, filterProvider)
+        {
+            ParentEntityExpression = x => x.<#=parentProperty.Name#>;
+        }
+<#  }
 #>
     }
 }

@@ -2,7 +2,7 @@
 {
     public interface IRelationshipsStripper<in TEntity> where TEntity : class
     {
-        void Strip(TEntity entity);
+        void Strip(TEntity entity, SEV.Domain.Model.DomainEvent domainEvent);
         void UnStrip(TEntity entity);
     }
 }

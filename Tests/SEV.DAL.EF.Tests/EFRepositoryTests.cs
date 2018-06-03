@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Practices.ServiceLocation;
 using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
@@ -156,7 +155,6 @@ namespace SEV.DAL.EF.Tests
             object IDbAsyncEnumerator.Current => Current;
         }
 
-
         #endregion
 
         [Test]
@@ -270,10 +268,6 @@ namespace SEV.DAL.EF.Tests
         [Test]
         public void WhenCallInsert_ThenShouldCallAddOfDbSet()
         {
-            var serviceLocatorMock = new Mock<IServiceLocator>();
-            serviceLocatorMock.Setup(x => x.GetInstance<IRelatedEntitiesStateAdjuster>())
-                              .Returns(new Mock<IRelatedEntitiesStateAdjuster>().Object);
-            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
             var entity = new Mock<Entity>().Object;
 
             m_repository.Insert(entity);
@@ -285,7 +279,6 @@ namespace SEV.DAL.EF.Tests
         public void WhenCallRemove_ThenShouldCallRemoveOfDbSet()
         {
             var entity = new Mock<Entity>().Object;
-            m_dbContextMock.Setup(x => x.GetEntityState(entity)).Returns(EntityState.Unchanged);
 
             m_repository.Remove(entity);
 
@@ -293,74 +286,13 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void GivenProvidedEntityIsNotAttachedToDbContext_WhenCallRemove_ThenShouldCallAttachOfDbSet()
-        {
-            var entity = new Mock<Entity>().Object;
-            m_dbContextMock.Setup(x => x.GetEntityState(entity)).Returns(EntityState.Detached);
-
-            m_repository.Remove(entity);
-
-            m_dbSetMock.Verify(x => x.Attach(entity), Times.Once);
-        }
-
-        [Test]
         public void WhenCallUpdate_ThenShouldSetEntityStateToModified()
         {
-            MockServiceLocator();
             var entity = new Mock<Entity>().Object;
-            m_dbContextMock.Setup(x => x.GetEntityState(entity)).Returns(EntityState.Unchanged);
 
             m_repository.Update(entity);
 
             m_dbContextMock.Verify(x => x.SetEntityState(entity, EntityState.Modified), Times.Once);
-        }
-
-        private Mock<IServiceLocator> MockServiceLocator()
-        {
-            var serviceLocatorMock = new Mock<IServiceLocator>();
-            serviceLocatorMock.Setup(x => x.GetInstance<EntityAssociationsUpdater>(typeof(Entity).FullName))
-                              .Throws<ActivationException>();
-            ServiceLocator.SetLocatorProvider(() => serviceLocatorMock.Object);
-
-            return serviceLocatorMock;
-        }
-
-        [Test]
-        public void GivenProvidedEntityIsNotAttachedToDbContext_WhenCallUpdate_ThenShouldCallAttachOfDbSet()
-        {
-            MockServiceLocator();
-            var entity = new Mock<Entity>().Object;
-            m_dbContextMock.Setup(x => x.GetEntityState(entity)).Returns(EntityState.Detached);
-
-            m_repository.Update(entity);
-
-            m_dbSetMock.Verify(x => x.Attach(entity), Times.Once);
-        }
-
-        [Test]
-        public void WhenCallUpdate_ThenShouldCallGetInstanceOfServiceLocatorForEntityAssociationsUpdater()
-        {
-            var serviceLocatorMock = MockServiceLocator();
-            var entity = new Mock<Entity>().Object;
-
-            m_repository.Update(entity);
-
-            serviceLocatorMock.Verify(x => x.GetInstance(typeof(EntityAssociationsUpdater),
-                                                            typeof(Entity).FullName), Times.Once);
-        }
-
-        [Test]
-        public void GivenEntityAssociationsUpdaterIsRegistered_WhenCallUpdate_ThenShouldCallUpdateAssociationsOfEntityAssociationsUpdater()
-        {
-            var serviceLocatorMock = MockServiceLocator();
-            var associationsUpdaterMock = new Mock<EntityAssociationsUpdater>();
-            serviceLocatorMock.Setup(x => x.GetInstance(typeof(EntityAssociationsUpdater), typeof(Entity).FullName))
-                              .Returns(associationsUpdaterMock.Object);
-            var entity = new Mock<Entity>().Object;
-
-            m_repository.Update(entity);
-
-            associationsUpdaterMock.Verify(x => x.UpdateAssociations(entity, m_dbContextMock.Object), Times.Once);
         }
     }
 }

@@ -18,8 +18,8 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: Guid("c3e1515d-115a-400a-bbce-6895ac343ceb")]
-[assembly: AssemblyVersion("0.5.1.3")]
-[assembly: AssemblyFileVersion("0.5.1.3")]
+[assembly: AssemblyVersion("0.5.2.1")]
+[assembly: AssemblyFileVersion("0.5.2.1")]
 
 [assembly: InternalsVisibleTo("SEV.DAL.EF.Tests")]
 [assembly: InternalsVisibleTo("SEV.DAL.DI")]

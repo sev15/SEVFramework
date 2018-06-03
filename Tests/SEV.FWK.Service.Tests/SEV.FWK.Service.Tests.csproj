@@ -83,7 +83,6 @@
     <Compile Include="TestDbContext.cs" />
     <Compile Include="SEVServicesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestEntityAssociationsUpdater.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

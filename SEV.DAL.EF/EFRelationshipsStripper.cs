@@ -3,20 +3,25 @@ using SEV.Domain.Services.Data;
 
 namespace SEV.DAL.EF
 {
-    public class EFRelationshipsStripper<TEntity> : RelationshipsStripper<TEntity> where TEntity : Entity
+    public class EFRelationshipsStripper<TEntity> : IRelationshipsStripper<TEntity> where TEntity : Entity
     {
-        private readonly IRelatedEntitiesStateAdjuster m_relatedEntitiesAdjuster;
+        private readonly IEFRelationshipManagerFactory m_factory;
+        private IEFRelationshipManager<TEntity> m_manager;
 
-        public EFRelationshipsStripper(IRelatedEntitiesStateAdjuster relatedEntitiesAdjuster)
+        public EFRelationshipsStripper(IEFRelationshipManagerFactory factory)
         {
-            m_relatedEntitiesAdjuster = relatedEntitiesAdjuster;
+            m_factory = factory;
         }
 
-        public override void Strip(TEntity entity)
+        public virtual void Strip(TEntity entity, DomainEvent domainEvent)
         {
-            base.Strip(entity);
+            m_manager = m_factory.CreateRelationshipManager<TEntity>(domainEvent);
+            m_manager.PrepareRelationships(entity);
+        }
 
-            m_relatedEntitiesAdjuster.AttachRelatedEntities(entity);
+        public virtual void UnStrip(TEntity entity)
+        {
+            m_manager.RestoreRelationships(entity);
         }
     }
 }

@@ -41,6 +41,14 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
+        public void WhenCallRelationshipsStripper_ThenShouldReturnInstanceOfEFRelationshipsStripper()
+        {
+            var result = m_unitOfWork.RelationshipsStripper<Entity>();
+
+            Assert.That(result, Is.InstanceOf<EFRelationshipsStripper<Entity>>());
+        }
+
+        [Test]
         public void WhenCallDomainEventsAggregator_ThenShouldReturnInstanceOfDomainEventsAggregator()
         {
             var result = m_unitOfWork.DomainEventsAggregator();
@@ -49,7 +57,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void WhenCallRelationshipManager_ThenShouldReturnInstanceOfEFRelationshipManager()
+        public void WhenCallRelationshipsLoader_ThenShouldReturnInstanceOfEFRelationshipsLoader()
         {
             var result = m_unitOfWork.RelationshipsLoader<Entity>();
 
@@ -57,7 +65,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void WhenCallDomainQueryProvider_ThenShouldCallGetInstanceWithKeyOfServiceLocatorForIDomainQueryHandlerFactory()
+        public void WhenCallCreateDomainQueryHandler_ThenShouldCallGetInstanceWithKeyOfServiceLocatorForIDomainQueryHandlerFactory()
         {
             const string queryName = "testQueryName";
             var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();
@@ -71,7 +79,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void GivenTypeOfQueryResultIsRight_WhenCallDomainQueryProvider_ThenShouldReturnDomainQueryHandler()
+        public void GivenTypeOfQueryResultIsRight_WhenCallCreateDomainQueryHandler_ThenShouldReturnDomainQueryHandler()
         {
             const string queryName = "testQueryName";
             var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();
@@ -85,7 +93,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public void GivenTypeOfQueryResultIsWrong_WhenCallDomainQueryProvider_ThenShouldThrowInvalidOperationException()
+        public void GivenTypeOfQueryResultIsWrong_WhenCallCreateDomainQueryHandler_ThenShouldThrowInvalidOperationException()
         {
             const string queryName = "testQueryName";
             var queryHandlerMock = new Mock<IDomainQueryHandler<bool>>();

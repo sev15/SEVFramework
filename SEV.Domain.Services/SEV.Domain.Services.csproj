@@ -49,7 +49,6 @@
     <Compile Include="Data\IRelationshipsStripper.cs" />
     <Compile Include="Data\IRelationshipsLoader.cs" />
     <Compile Include="Data\IRepository.cs" />
-    <Compile Include="Data\RelationshipsStripper.cs" />
     <Compile Include="IUnitOfWorkFactory.cs" />
     <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Logic\DomainEventArgs.cs" />

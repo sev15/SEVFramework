@@ -1,14 +1,14 @@
-﻿using System;
-using System.Data.Entity.Migrations;
-using System.IO;
-using System.Linq;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using SEV.DAL.EF;
 using SEV.DAL.EF.DI;
 using SEV.DI;
 using SEV.DI.LightInject;
 using SEV.Service.DI;
+using System;
+using System.Data.Entity.Migrations;
+using System.IO;
+using System.Linq;
 
 namespace SEV.FWK.Service.Tests
 {
@@ -27,7 +27,6 @@ namespace SEV.FWK.Service.Tests
             container.RegisterDomainServices();
             container.RegisterAplicationServices();
             container.Register<IDbContext, TestDbContext>();
-            container.Register<EntityAssociationsUpdater, TestEntityAssociationsUpdater>(typeof(TestEntity).FullName);
 
             ServiceLocator.SetLocatorProvider(() => diConfiguration.CreateServiceLocator(container));
 

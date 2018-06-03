@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DIContainerExtentionsTests.cs" />
+    <Compile Include="EFRelationshipManagerFactoryTests.cs" />
     <Compile Include="EFRelationshipsLoaderTests.cs" />
     <Compile Include="EFRelationshipsStripperTests.cs" />
     <Compile Include="EFRepositoryFactoryTests.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="EFUnitOfWorkFactoryTests.cs" />
     <Compile Include="EFUnitOfWorkTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReferenceContainerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

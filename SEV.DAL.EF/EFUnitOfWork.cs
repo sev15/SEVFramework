@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Practices.ServiceLocation;
+﻿using Microsoft.Practices.ServiceLocation;
 using SEV.Domain.Model;
 using SEV.Domain.Services;
 using SEV.Domain.Services.Data;
 using SEV.Domain.Services.Logic;
+using System;
 
 namespace SEV.DAL.EF
 {
@@ -23,7 +23,8 @@ namespace SEV.DAL.EF
 
         public IRelationshipsStripper<TEntity> RelationshipsStripper<TEntity>() where TEntity : Entity
         {
-            return new EFRelationshipsStripper<TEntity>(new EFRelatedEntitiesStateAdjuster(m_context));
+            return new EFRelationshipsStripper<TEntity>(new EFRelationshipManagerFactory(m_context,
+                                                                                         new ReferenceContainer()));
         }
 
         public IDomainEventsAggregator DomainEventsAggregator()

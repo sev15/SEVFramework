@@ -249,9 +249,118 @@ namespace SEV.FWK.Service.Tests
             Assert.That(updatedEntity.Parent, Is.Not.Null);
             Assert.That(updatedEntity.Parent.Id, Is.EqualTo(newId));
         }
+
+        [Test]
+        public void GivenEntityIsAggregateRoot_WhenExecuteCreateQuery_ThenShouldCreateChildEntities()
+        {
+            const int count = 3;
+            const string testValue = "New Test Parent";
+            var newParent = new TestEntity { Value = testValue };
+            Enumerable.Range(1, count).Select(x => new TestEntity { Value = "New Child " + x }).ToList()
+                      .ForEach(c => newParent.Children.Add(c));
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Create(newParent);
+
+            var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Value.Contains(testValue);
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Children };
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var createdEntity = queryService.FindByQuery(query).SingleOrDefault();
+            Assert.That(createdEntity, Is.Not.Null);
+            Assert.That(createdEntity.Children.Count, Is.EqualTo(count));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRoot_WhenExecuteDeleteQuery_ThenShouldDeleteChildEntities()
+        {
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var parentEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Delete(parentEntity);
+
+            var entities = queryService.Read<TestEntity>();
+            Assert.That(entities.Any(), Is.False);
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndChildEntityIsRemoved_WhenExecuteUpdateQuery_ThenShouldDeleteChildEntity()
+        {
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var parentEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            int childrenCount = parentEntity.Children.Count;
+            var childEntity = parentEntity.Children.First();
+            parentEntity.Children.Remove(childEntity);
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Update(parentEntity);
+
+            var updatedEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            Assert.That(updatedEntity.Children.Count, Is.EqualTo(childrenCount - 1));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndChildEntityIsAdded_WhenExecuteUpdateQuery_ThenShouldCreateChildEntity()
+        {
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var parentEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            int childrenCount = parentEntity.Children.Count;
+            var childEntity = new TestEntity { Value = "test!!!" };
+            parentEntity.Children.Add(childEntity);
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Update(parentEntity);
+
+            var updatedEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            Assert.That(updatedEntity.Children.Count, Is.EqualTo(childrenCount + 1));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndChildEntitiesAreModified_WhenExecuteUpdateQuery_ThenShouldUpdateChildEntities()
+        {
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var parentEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            int childrenCount = parentEntity.Children.Count;
+            var childEntity = parentEntity.Children.First();
+            parentEntity.Children.Remove(childEntity);
+            childEntity = new TestEntity { Value = "test!!!" };
+            parentEntity.Children.Add(childEntity);
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Update(parentEntity);
+
+            var updatedEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            Assert.That(updatedEntity.Children.Count, Is.EqualTo(childrenCount));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndChildEntitiesAreAdded_WhenExecuteUpdateQuery_ThenShouldCreateChildEntities()
+        {
+            const string testValue = "New Test Parent";
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+            service.Create(new TestEntity { Value = testValue });
+
+            var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Value.Contains(testValue);
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Children };
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var createdEntity = queryService.FindByQuery(query).SingleOrDefault();
+            Assert.That(createdEntity, Is.Not.Null);
+            Assert.That(createdEntity.Children.Any(), Is.False);
+
+            createdEntity.Children.Add(new TestEntity { Value = "New Child 1" });
+            createdEntity.Children.Add(new TestEntity { Value = "New Child 2" });
+
+            service.Update(createdEntity);
+
+            var updatedEntity = queryService.FindByQuery(query).SingleOrDefault();
+            Assert.That(updatedEntity, Is.Not.Null);
+            Assert.That(updatedEntity.Children.Any(), Is.True);
+        }
     }
 
-    public class TestEntity : Entity
+    public class TestEntity : Entity, IAggregateRoot
     {
         public TestEntity()
         {
@@ -259,6 +368,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         public string Value { get; set; }
+        [Parent]
         public TestEntity Parent { get; set; }
         public ICollection<TestEntity> Children { get; set; }
     }

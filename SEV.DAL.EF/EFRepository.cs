@@ -1,6 +1,4 @@
-﻿using Microsoft.Practices.ServiceLocation;
-using SEV.DI;
-using SEV.Domain.Model;
+﻿using SEV.Domain.Model;
 using SEV.Domain.Services.Data;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -83,33 +81,12 @@ namespace SEV.DAL.EF
 
         public void Remove(TEntity entity)
         {
-            EnsureEntityAttached(entity);
             m_dbSet.Remove(entity);
-        }
-
-        private void EnsureEntityAttached(TEntity entity)
-        {
-            if (m_context.GetEntityState(entity) == EntityState.Detached)
-            {
-                m_dbSet.Attach(entity);
-            }
         }
 
         public void Update(TEntity entity)
         {
-            EnsureEntityAttached(entity);
             m_context.SetEntityState(entity, EntityState.Modified);
-            UpdateAssociations(entity);
-        }
-
-        private void UpdateAssociations(TEntity entity)
-        {
-            var updater = ServiceLocator.Current.Resolve<EntityAssociationsUpdater>(typeof(TEntity).FullName);
-            if (updater == null)
-            {
-                return;
-            }
-            updater.UpdateAssociations(entity, m_context);
         }
     }
 }

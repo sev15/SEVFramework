@@ -25,7 +25,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Create);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Create);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
                 unitOfWork.SaveChanges();
                 stripper.UnStrip(newEntity);
@@ -55,7 +55,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Delete);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Delete);
                 unitOfWork.Repository<T>().Remove(entity);
                 unitOfWork.SaveChanges();
                 stripper.UnStrip(entity);
@@ -69,7 +69,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Update);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Update);
                 unitOfWork.Repository<T>().Update(entity);
                 unitOfWork.SaveChanges();
                 stripper.UnStrip(entity);
@@ -85,7 +85,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Create);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Create);
                 newEntity = unitOfWork.Repository<T>().Insert(entity);
                 await unitOfWork.SaveChangesAsync();
                 stripper.UnStrip(newEntity);
@@ -101,7 +101,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Delete);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Delete);
                 unitOfWork.Repository<T>().Remove(entity);
                 await unitOfWork.SaveChangesAsync();
                 stripper.UnStrip(entity);
@@ -115,7 +115,7 @@ namespace SEV.Service
             {
                 ValidateEntity(entity, DomainEvent.Update);
                 var stripper = unitOfWork.RelationshipsStripper<T>();
-                stripper.Strip(entity);
+                stripper.Strip(entity, DomainEvent.Update);
                 unitOfWork.Repository<T>().Update(entity);
                 await unitOfWork.SaveChangesAsync();
                 stripper.UnStrip(entity);

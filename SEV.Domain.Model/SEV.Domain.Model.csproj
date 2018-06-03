@@ -40,6 +40,8 @@
   <ItemGroup>
     <Compile Include="DomainEvent.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="IAggregateRoot.cs" />
+    <Compile Include="ParentAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
