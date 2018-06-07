@@ -46,13 +46,13 @@ namespace SEV.UI.Model
 
         public virtual void Load()
         {
-            var entities = QueryService.Read<TEntity>();
+            var entities = QueryService.Read(GetIncludes().ToArray());
             SetItems(entities);
         }
 
         public virtual async Task LoadAsync()
         {
-            var entities = await QueryService.ReadAsync<TEntity>();
+            var entities = await QueryService.ReadAsync(GetIncludes().ToArray());
             SetItems(entities);
         }
 
