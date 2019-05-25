@@ -11,6 +11,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         public DbSet<TestEntity> TestEntities { get; set; }
+        public DbSet<TestCategory> TestCategories { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -20,6 +21,11 @@ namespace SEV.FWK.Service.Tests
                         .HasOptional(s => s.Parent)
                         .WithMany(m => m.Children)
                         .Map((x) => x.MapKey("ParentId"));
+
+            modelBuilder.Entity<TestEntity>()
+                        .HasOptional(s => s.Category)
+                        .WithMany(c => c.Children)
+                        .Map(k => k.MapKey("CategoryId"));
         }
     }
 }

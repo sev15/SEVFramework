@@ -153,8 +153,9 @@ namespace SEV.DAL.EF.Tests
         }
     }
 
-    public class TestEntity : Entity
+    public class TestEntity : Entity, IAggregateRoot
     {
+        [Parent]
         public TestEntity Parent { get; set; }
         public ICollection<TestEntity> Children { get; set; }
     }

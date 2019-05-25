@@ -303,7 +303,7 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public async void WhenCallCreateAsync_ThenShouldReturnNewEntityProvidedByEntityRepository()
+        public async System.Threading.Tasks.Task WhenCallCreateAsync_ThenShouldReturnNewEntityProvidedByEntityRepository()
         {
             var result = await m_service.CreateAsync(m_entity);
 

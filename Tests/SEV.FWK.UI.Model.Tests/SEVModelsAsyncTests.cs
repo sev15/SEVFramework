@@ -1,8 +1,8 @@
-﻿using Microsoft.Practices.ServiceLocation;
+﻿using System.Threading.Tasks;
+using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using SEV.FWK.Service.Tests;
 using SEV.Service.Contract;
-using SEV.UI.Model;
 
 namespace SEV.FWK.UI.Model.Tests
 {
@@ -13,7 +13,7 @@ namespace SEV.FWK.UI.Model.Tests
         private const string ParentValue = "Parent";
 
         [Test]
-        public async void WhenCallLoadAsyncOfListModel_ThenShouldLoadFullCollectionForRequestedEntity()
+        public async Task WhenCallLoadAsyncOfListModel_ThenShouldLoadFullCollectionForRequestedEntity()
         {
             var listModel = ServiceLocator.Current.GetInstance<ITestListModel>();
 
@@ -24,7 +24,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenParentEntityExpressionIsSpecified_WhenCallLoadByIdAsyncOfListModel_ThenShouldLoadCollectionOfEntitiesAttachedToParentEntityWithRequestedId()
+        public async Task GivenParentEntityExpressionIsSpecified_WhenCallLoadByIdAsyncOfListModel_ThenShouldLoadCollectionOfEntitiesAttachedToParentEntityWithRequestedId()
         {
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
             string id = ParentId.ToString();
@@ -45,7 +45,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityWithRequestedId()
+        public async Task WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityWithRequestedId()
         {
             string id = ParentId.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -58,7 +58,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenParentEntityIsSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithParentEntity()
+        public async Task GivenParentEntityIsSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithParentEntity()
         {
             string id = ChildCount.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -73,7 +73,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenRelatedEntitiesAreSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntities()
+        public async Task GivenRelatedEntitiesAreSpecifiedInGetIncludes_WhenCallLoadByIdAsyncOfSingleModel_ThenShouldLoadEntityByRequestedIdWithRelatedEntities()
         {
             string id = ParentId.ToString();
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -86,7 +86,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenNewModel_WhenCallSaveAsyncOfEditableModel_ThenShouldCreateNewEntity()
+        public async Task GivenNewModel_WhenCallSaveAsyncOfEditableModel_ThenShouldCreateNewEntity()
         {
             const string testValue = "Create Test";
             var model = ServiceLocator.Current.GetInstance<ITestModel>();
@@ -102,7 +102,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenExistingModel_WhenCallSaveAsyncOfEditableModel_ThenShouldUpdateModelEntity()
+        public async Task GivenExistingModel_WhenCallSaveAsyncOfEditableModel_ThenShouldUpdateModelEntity()
         {
             var entity = await ServiceLocator.Current.GetInstance<ICommandService>()
                                                      .CreateAsync(new TestEntity { Value = "new" });
@@ -126,7 +126,7 @@ namespace SEV.FWK.UI.Model.Tests
         }
 
         [Test]
-        public async void WhenCallDeleteAsyncOfEditableModel_ThenShouldDeleteModelEntity()
+        public async Task WhenCallDeleteAsyncOfEditableModel_ThenShouldDeleteModelEntity()
         {
             string id = (ChildCount - 1).ToString();
 // ReSharper restore SpecifyACultureInStringConversionExplicitly

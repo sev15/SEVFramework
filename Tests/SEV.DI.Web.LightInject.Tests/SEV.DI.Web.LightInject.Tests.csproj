@@ -57,7 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DIContainerExtentionsTests.cs" />
+    <Compile Include="DIContainerExtensionsTests.cs" />
     <Compile Include="LightInjectWebConfiguratorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

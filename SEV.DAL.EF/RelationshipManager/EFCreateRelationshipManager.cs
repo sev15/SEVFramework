@@ -1,5 +1,6 @@
 ﻿using SEV.Domain.Model;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Reflection;
 
@@ -10,20 +11,17 @@ namespace SEV.DAL.EF
         public EFCreateRelationshipManager(IDbContext context, IReferenceContainer container)
             : base(context, container)
         {
+            AttachEntity = false;
         }
 
-        public override void PrepareRelationships(TEntity entity)
+        protected override void ArrangeChildCollection(KeyValuePair<PropertyInfo, ICollection> collectionInfo,
+            TEntity entity, DbContext dbContext)
         {
-            ArrangeRelationships(entity);
-        }
+            DbSet childDbSet = GetChildDbSet(dbContext, collectionInfo.Value);
 
-        protected override void ArrangeChildCollection(PropertyInfo propInfo, TEntity entity, DbContext dbContext)
-        {
-            var propValue = propInfo.GetValue(entity);
-            DbSet childDbSet = GetChildDbSet(dbContext, propValue);
-
-            foreach (var child in (ICollection)propValue)
+            foreach (var child in collectionInfo.Value)
             {
+                ArrangeChildRelationships((Entity)child);
                 childDbSet.Add(child);
             }
         }

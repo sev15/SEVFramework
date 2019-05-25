@@ -1,4 +1,6 @@
-﻿using SEV.Domain.Model;
+﻿using System.Collections;
+using System.Collections.Generic;
+using SEV.Domain.Model;
 using System.Reflection;
 
 namespace SEV.DAL.EF
@@ -7,7 +9,8 @@ namespace SEV.DAL.EF
     {
         void AnalyzeReferences<TEntity>(TEntity entity) where TEntity : Entity;
         PropertyInfo[] GetRelationships();
-        PropertyInfo[] GetChildCollections<TEntity>(TEntity entity) where TEntity : Entity;
+        IDictionary<PropertyInfo, ICollection> GetChildCollections<TEntity>(TEntity entity) where TEntity : Entity;
+        PropertyInfo[] GetChildRelationships();
         void RestoreReferences<TEntity>(TEntity entity) where TEntity : Entity;
     }
 }

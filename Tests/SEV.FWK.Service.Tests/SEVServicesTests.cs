@@ -13,6 +13,7 @@ namespace SEV.FWK.Service.Tests
     public class SEVServicesTests : ServicesSysTestBase
     {
         private const int ParentId = 1;
+        private const int CategoryId = 1;
 
         [Test]
         public void WhenExecuteReadQuery_ThenShouldReturnFullCollectionForRequestedEntity()
@@ -236,7 +237,6 @@ namespace SEV.FWK.Service.Tests
             string id = (ParentId + 1).ToString();
             const int newId = ParentId + 2;
             string newParentId = newId.ToString();
-// ReSharper restore SpecifyACultureInStringConversionExplicitly
             var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
             var entityToUpdate = queryService.FindById<TestEntity>(id, x => x.Parent);
             var newParentEntity = queryService.FindById<TestEntity>(newParentId);
@@ -251,13 +251,68 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
+        public void GivenCategoryIsSpecified_WhenExecuteCreateQuery_ThenShouldAssociateCreatedEntityWithProvidedCategory()
+        {
+            const string testValue = "Create With Category Test";
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var parentEntity = queryService.FindById<TestEntity>(ParentId.ToString());
+            var category = queryService.FindById<TestCategory>(CategoryId.ToString());
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            var result = service.Create(new TestEntity { Value = testValue, Parent = parentEntity, Category = category });
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Parent, Is.Not.Null);
+            Assert.That(result.Parent.Id, Is.EqualTo(ParentId));
+            Assert.That(result.Value, Is.EqualTo(testValue));
+            Assert.That(result.Category, Is.Not.Null);
+            Assert.That(result.Category.Id, Is.EqualTo(CategoryId));
+        }
+
+        [Test]
+        public void GivenEntityIsAssociatedWithCategory_WhenExecuteDeleteQuery_ThenShouldNotDeleteAssociatedCategory()
+        {
+            const string testValue = "Delete With Category Test";
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var category = queryService.FindById<TestCategory>(CategoryId.ToString());
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+            var testEntity = service.Create(new TestEntity { Value = testValue, Category = category });
+            var entityToDelete = queryService.FindById<TestEntity>(testEntity.EntityId);
+
+            service.Delete(entityToDelete);
+
+            Assert.That(queryService.FindById<TestEntity>(testEntity.EntityId), Is.Null);
+            Assert.That(queryService.FindById<TestCategory>(CategoryId.ToString()), Is.Not.Null);
+        }
+
+        [Test]
+        public void GivenCategoryIsProvided_WhenExecuteUpdateQuery_ThenShouldAssociateUpdatedEntityWithProvidedCategory()
+        {
+            string id = (ParentId + 1).ToString();
+            const int categoryId = 1;
+// ReSharper restore SpecifyACultureInStringConversionExplicitly
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var entityToUpdate = queryService.FindById<TestEntity>(id, x => x.Parent);
+            var category = queryService.FindById<TestCategory>(categoryId.ToString());
+            entityToUpdate.Category = category;
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Update(entityToUpdate);
+
+            var updatedEntity = queryService.FindById<TestEntity>(id, x => x.Parent, x => x.Category);
+            Assert.That(updatedEntity.Parent, Is.Not.Null);
+            Assert.That(updatedEntity.Category, Is.Not.Null);
+            Assert.That(updatedEntity.Category.Id, Is.EqualTo(categoryId));
+        }
+
+        [Test]
         public void GivenEntityIsAggregateRoot_WhenExecuteCreateQuery_ThenShouldCreateChildEntities()
         {
             const int count = 3;
             const string testValue = "New Test Parent";
             var newParent = new TestEntity { Value = testValue };
-            Enumerable.Range(1, count).Select(x => new TestEntity { Value = "New Child " + x }).ToList()
-                      .ForEach(c => newParent.Children.Add(c));
+            Enumerable.Range(1, count).Select(x => new TestEntity { Value = "New Child " + x, Parent = newParent })
+                      .ToList().ForEach(c => newParent.Children.Add(c));
             var service = ServiceLocator.Current.GetInstance<ICommandService>();
 
             service.Create(newParent);
@@ -358,6 +413,99 @@ namespace SEV.FWK.Service.Tests
             Assert.That(updatedEntity, Is.Not.Null);
             Assert.That(updatedEntity.Children.Any(), Is.True);
         }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndCategoriesAreSpecified_WhenExecuteCreateQuery_ThenShouldCreateChildEntitiesWithAssociatedCategories()
+        {
+            const int count = 3;
+            const string testValue = "New Test Parent With Category";
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var newParent = new TestEntity { Value = testValue };
+            Enumerable.Range(1, count).Select(x => new TestEntity { Value = "New Child " + x })
+                      .ToList().ForEach(c => newParent.Children.Add(c));
+            var categoriesDic = queryService.Read<TestCategory>().ToDictionary(x => x.Id);
+            int categoriesCount = categoriesDic.Count;
+            newParent.Category = categoriesDic[1];
+            newParent.Children.First().Category = categoriesDic[categoriesCount - 1];
+            newParent.Children.Last().Category = categoriesDic[categoriesCount];
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Create(newParent);
+
+            var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Value.Contains(testValue);
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Children, x => x.Category };
+            var createdEntity = queryService.FindByQuery(query).SingleOrDefault();
+            Assert.That(createdEntity, Is.Not.Null);
+            Assert.That(createdEntity.Category, Is.Not.Null);
+            Assert.That(createdEntity.Category.Id, Is.EqualTo(categoriesDic[1].Id));
+            Assert.That(createdEntity.Children.Count, Is.EqualTo(count));
+            Assert.That(queryService.Read<TestCategory>().Count(), Is.EqualTo(categoriesCount));
+
+            query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Parent.Id == createdEntity.Id && entity.Category != null;
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Category };
+            var childrenWithCategories = queryService.FindByQuery(query).ToArray();
+            Assert.That(childrenWithCategories.Length, Is.EqualTo(2));
+            Assert.That(childrenWithCategories.First().Category.Id, Is.EqualTo(categoriesDic[categoriesCount - 1].Id));
+            Assert.That(childrenWithCategories.Last().Category.Id, Is.EqualTo(categoriesDic[categoriesCount].Id));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndCategoriesAreAssociated_WhenExecuteDeleteQuery_ThenShouldNotDeleteAssociatedCategories()
+        {
+            const string testValue = "New Test Parent With Category";
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            int initialEntitiesCount = queryService.Read<TestEntity>().Count();
+            var categoriesDic = queryService.Read<TestCategory>().ToDictionary(x => x.Id);
+            var newParent = new TestEntity { Value = testValue, Category = categoriesDic[1] };
+            Enumerable.Range(1, 3).Select(x => new TestEntity { Value = "New Child " + x, Category = categoriesDic[x] })
+                      .ToList().ForEach(c => newParent.Children.Add(c));
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+            var createdEntity = service.Create(newParent);
+            var entityToDelete = queryService.FindById<TestEntity>(createdEntity.EntityId);
+            var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Parent.Id == createdEntity.Id;
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Category };
+            entityToDelete.Children = queryService.FindByQuery(query).ToList();
+
+            service.Delete(entityToDelete);
+
+            Assert.That(queryService.Read<TestEntity>().Count(), Is.EqualTo(initialEntitiesCount));
+        }
+
+        [Test]
+        public void GivenEntityIsAggregateRootAndAddChildEntitiesAndAssociateCategories_WhenExecuteUpdateQuery_ThenShouldCreateChildEntitiesWithAssociatedCategories()
+        {
+            var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
+            var categoriesDic = queryService.Read<TestCategory>().ToDictionary(x => x.Id);
+            int categoriesCount = categoriesDic.Count;
+            var entityToUpdate = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Children);
+            entityToUpdate.Category = categoriesDic[1];
+            entityToUpdate.Children.First().Category = categoriesDic[2];
+            entityToUpdate.Children.Last().Category = categoriesDic[2];
+            var childEntityToRemove = entityToUpdate.Children.ElementAt(1);
+            entityToUpdate.Children.Remove(childEntityToRemove);
+            entityToUpdate.Children.Add(new TestEntity { Value = "New Child 1", Category = categoriesDic[3] });
+            entityToUpdate.Children.Add(new TestEntity { Value = "New Child 2", Category = categoriesDic[3] });
+            var service = ServiceLocator.Current.GetInstance<ICommandService>();
+
+            service.Update(entityToUpdate);
+
+            var updatedEntity = queryService.FindById<TestEntity>(ParentId.ToString(), x => x.Category);
+            Assert.That(updatedEntity, Is.Not.Null);
+            Assert.That(updatedEntity.Category, Is.Not.Null);
+            Assert.That(updatedEntity.Category.Id, Is.EqualTo(categoriesDic[1].Id));
+            Assert.That(queryService.Read<TestCategory>().Count(), Is.EqualTo(categoriesCount));
+
+            var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
+            query.Filter = entity => entity.Parent.Id == updatedEntity.Id && entity.Category != null;
+            query.Includes = new Expression<Func<TestEntity, object>>[] { x => x.Category };
+            var childrenWithCategories = queryService.FindByQuery(query).ToArray();
+            Assert.That(childrenWithCategories.Length, Is.EqualTo(4));
+            Assert.That(childrenWithCategories.First().Category.Id, Is.EqualTo(categoriesDic[categoriesCount - 1].Id));
+            Assert.That(childrenWithCategories.Last().Category.Id, Is.EqualTo(categoriesDic[categoriesCount].Id));
+        }
     }
 
     public class TestEntity : Entity, IAggregateRoot
@@ -371,5 +519,19 @@ namespace SEV.FWK.Service.Tests
         [Parent]
         public TestEntity Parent { get; set; }
         public ICollection<TestEntity> Children { get; set; }
+        public TestCategory Category { get; set; }
     }
+
+    public class TestCategory : Entity
+    {
+        public TestCategory()
+        {
+            Children = new List<TestEntity>();
+        }
+
+        public string Name { get; set; }
+        public string Comments { get; set; }
+        public ICollection<TestEntity> Children { get; set; }
+    }
+
 }

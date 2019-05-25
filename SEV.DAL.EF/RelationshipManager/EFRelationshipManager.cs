@@ -1,4 +1,6 @@
-﻿using SEV.Domain.Model;
+﻿using System.Collections;
+using System.Collections.Generic;
+using SEV.Domain.Model;
 using System.Data.Entity;
 using System.Reflection;
 
@@ -15,18 +17,23 @@ namespace SEV.DAL.EF
             m_refContainer = container;
         }
 
-        public abstract void PrepareRelationships(TEntity entity);
+        public virtual void PrepareRelationships(TEntity entity)
+        {
+            ArrangeRelationships(entity);
+        }
 
         public virtual void RestoreRelationships(TEntity entity)
         {
             m_refContainer.RestoreReferences(entity);
         }
 
-        protected void ArrangeRelationships(TEntity entity, bool attachEntity = false)
+        protected bool AttachEntity { get; set; }
+
+        private void ArrangeRelationships(TEntity entity)
         {
             m_refContainer.AnalyzeReferences(entity);
 
-            if (attachEntity)
+            if (AttachEntity)
             {
                 EnsureEntityAttached(entity);
             }
@@ -37,9 +44,9 @@ namespace SEV.DAL.EF
             {
                 ArrangeEntityRelationship(propInfo, entity, dbContext);
             }
-            foreach (PropertyInfo propInfo in m_refContainer.GetChildCollections(entity))
+            foreach (var collectionInfo in m_refContainer.GetChildCollections(entity))
             {
-                ArrangeChildCollection(propInfo, entity, dbContext);
+                ArrangeChildCollection(collectionInfo, entity, dbContext);
             }
         }
 
@@ -51,24 +58,42 @@ namespace SEV.DAL.EF
             }
         }
 
-        protected virtual void ArrangeEntityRelationship(PropertyInfo propInfo, TEntity entity, DbContext dbContext)
+        protected virtual void ArrangeEntityRelationship(PropertyInfo propInfo, Entity entity, DbContext dbContext)
         {
             var relatedEntity = propInfo.GetValue(entity);
-            if ((relatedEntity != null) && (dbContext.Entry(relatedEntity).State == EntityState.Detached))
+            if (relatedEntity == null)
             {
-                var relatedEntitySet = dbContext.Set(propInfo.PropertyType);
-                relatedEntitySet.Attach(relatedEntity);
-                dbContext.Entry(relatedEntity).State = EntityState.Unchanged;
+                return;
             }
+            if (dbContext.Entry(relatedEntity).State == EntityState.Detached)
+            {
+                dbContext.Set(propInfo.PropertyType).Attach(relatedEntity);
+            }
+            dbContext.Entry(relatedEntity).State = EntityState.Unchanged;
         }
 
-        protected abstract void ArrangeChildCollection(PropertyInfo propInfo, TEntity entity, DbContext dbContext);
+        protected abstract void ArrangeChildCollection(KeyValuePair<PropertyInfo, ICollection> collectionInfo,
+                                                       TEntity entity, DbContext dbContext);
 
         protected DbSet GetChildDbSet(DbContext dbContext, object collection)
         {
             var childType = collection.GetType().GenericTypeArguments[0];
 
             return dbContext.Set(childType);
+        }
+
+        protected void ArrangeChildRelationships(Entity child)
+        {
+            var dbContext = (DbContext)m_context;
+            foreach (PropertyInfo propInfo in m_refContainer.GetChildRelationships())
+            {
+                ArrangeChildRelationship(propInfo, child, dbContext);
+            }
+        }
+
+        protected virtual void ArrangeChildRelationship(PropertyInfo propInfo, Entity childEntity, DbContext dbContext)
+        {
+            ArrangeEntityRelationship(propInfo, childEntity, dbContext);
         }
     }
 }

@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DIContainerExtentionsTests.cs" />
+    <Compile Include="DIContainerExtensionsTests.cs" />
     <Compile Include="EFRelationshipManagerFactoryTests.cs" />
     <Compile Include="EFRelationshipsLoaderTests.cs" />
     <Compile Include="EFRelationshipsStripperTests.cs" />

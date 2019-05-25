@@ -7,6 +7,7 @@ using SEV.Service.Contract;
 using SEV.UI.Model.Contract;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model.Tests
 {
@@ -265,7 +266,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenModelIsNew_WhenCallSaveAsync_ThenShouldCallCreateAsyncOfCommandService()
+        public async Task GivenModelIsNew_WhenCallSaveAsync_ThenShouldCallCreateAsyncOfCommandService()
         {
             m_model.New();
 
@@ -275,7 +276,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenCreateQuerySucceeds_WhenCallSaveAsync_ThenShouldInitializeModelEntityWithOneCreatedByCommandService()
+        public async Task GivenCreateQuerySucceeds_WhenCallSaveAsync_ThenShouldInitializeModelEntityWithOneCreatedByCommandService()
         {
             m_model.New();
             m_commandServiceMock.Setup(x => x.CreateAsync(It.Is<TestEntity>(y => y.Id == default(int))))
@@ -287,7 +288,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenModelIsNotNew_WhenCallSaveAsync_ThenShouldCallUpdateAsyncOfCommandService()
+        public async Task GivenModelIsNotNew_WhenCallSaveAsync_ThenShouldCallUpdateAsyncOfCommandService()
         {
             m_model.SetEntity(m_entity);
 
@@ -297,7 +298,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenUpdateQuerySucceeds_WhenCallSaveAsync_ThenShouldReInitializeModelEntity()
+        public async Task GivenUpdateQuerySucceeds_WhenCallSaveAsync_ThenShouldReInitializeModelEntity()
         {
             m_model.SetEntity(m_entity);
 
@@ -307,7 +308,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenModelEntityIsInitializedAndModelIsNotNew_WhenCallDeleteAsync_ThenShouldCallDeleteAsyncOfCommandService()
+        public async Task GivenModelEntityIsInitializedAndModelIsNotNew_WhenCallDeleteAsync_ThenShouldCallDeleteAsyncOfCommandService()
         {
             m_model.SetEntity(m_entity);
 
@@ -317,7 +318,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenDeleteQuerySucceeds_WhenCallDeleteAsync_ThenShouldNotReInitializeModelEntity()
+        public async Task GivenDeleteQuerySucceeds_WhenCallDeleteAsync_ThenShouldNotReInitializeModelEntity()
         {
             m_model.SetEntity(m_entity);
 

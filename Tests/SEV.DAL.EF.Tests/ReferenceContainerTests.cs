@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace SEV.DAL.EF.Tests
 {
@@ -40,22 +39,22 @@ namespace SEV.DAL.EF.Tests
             Assert.That(m_container.GetRelationships().Length, Is.EqualTo(1));
         }
 
-        //[Test]
-        //public void WhenCallAnalyzeReferences_ThenShouldStripEntityCollections()
-        //{
-        //    m_container.AnalyzeReferences(m_entity);
-
-        //    Assert.That(m_entity.Children, Is.Null);
-        //}
-
         [Test]
-        public void WhenCallAnalyzeReferences_ThenShouldFindChildCollections()
+        public void WhenCallAnalyzeReferences_ThenShouldStripEntityCollections()
         {
             m_container.AnalyzeReferences(m_entity);
 
-            PropertyInfo[] result = m_container.GetChildCollections(m_entity);
+            Assert.That(m_entity.Children, Is.Null);
+        }
 
-            Assert.That(result.Any(), Is.False);
+        [Test]
+        public void WhenCallAnalyzeReferences_ThenShouldFindChildCollection()
+        {
+            m_container.AnalyzeReferences(m_entity);
+
+            var result = m_container.GetChildCollections(m_entity);
+
+            Assert.That(result.Any(), Is.True);
         }
 
         [Test]

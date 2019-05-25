@@ -33,7 +33,7 @@ namespace SEV.DAL.EF
         {
             if (inputId is string)
             {
-                return int.Parse(inputId as string);
+                return int.Parse((string)inputId);
             }
             return (int)inputId;
         }

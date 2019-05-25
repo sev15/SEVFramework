@@ -210,7 +210,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public async void WhenCallAllAsync_ThenShouldReturnEntityCollectionProvidedByDbSet()
+        public async Task WhenCallAllAsync_ThenShouldReturnEntityCollectionProvidedByDbSet()
         {
             var queryable = InitDbSetAsyncMock(4);
 
@@ -220,7 +220,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public async void WhenCallGetByIdAsync_ThenShouldCallReturnEntityWithSpecifiedId()
+        public async Task WhenCallGetByIdAsync_ThenShouldCallReturnEntityWithSpecifiedId()
         {
             const int id = 3;
             InitDbSetAsyncMock(3);
@@ -232,7 +232,7 @@ namespace SEV.DAL.EF.Tests
         }
 
         [Test]
-        public async void WhenCallGetByIdListAsync_ThenShouldReturnEntityCollectionProvidedByDbSetFilteredByProvidedIdList()
+        public async Task WhenCallGetByIdListAsync_ThenShouldReturnEntityCollectionProvidedByDbSetFilteredByProvidedIdList()
         {
             const int id1 = 2;
             const int id2 = 3;

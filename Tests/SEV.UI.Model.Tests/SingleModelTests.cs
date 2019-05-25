@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model.Tests
 {
@@ -136,7 +137,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void WhenCallLoadAsync_ThenShouldCallFindByIdOfQueryServiceWithProvidedId()
+        public async Task WhenCallLoadAsync_ThenShouldCallFindByIdOfQueryServiceWithProvidedId()
         {
             string id = m_entity.EntityId;
 
@@ -146,7 +147,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenGetIncludesIsOverriden_WhenCallLoadAsync_ThenShouldCallFindByIdAsyncOfQueryServiceWithProvidedIdAndSpecifiedIncludes()
+        public async Task GivenGetIncludesIsOverriden_WhenCallLoadAsync_ThenShouldCallFindByIdAsyncOfQueryServiceWithProvidedIdAndSpecifiedIncludes()
         {
             m_model = new TestModel(m_queryServiceMock.Object, true);
             string id = m_entity.EntityId;
@@ -158,7 +159,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenEntityReturnedByFindByIdQueryIsNotNull_WhenCallLoadAsync_ThenShouldInitializeModelEntity()
+        public async Task GivenEntityReturnedByFindByIdQueryIsNotNull_WhenCallLoadAsync_ThenShouldInitializeModelEntity()
         {
             m_queryServiceMock.Setup(x => x.FindByIdAsync<TestEntity>(m_entity.EntityId)).ReturnsAsync(m_entity);
 
@@ -169,7 +170,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenEntityReturnedByFindByIdQueryIsNull_WhenCallLoadAsync_ThenShouldNotInitializeModelEntity()
+        public async Task GivenEntityReturnedByFindByIdQueryIsNull_WhenCallLoadAsync_ThenShouldNotInitializeModelEntity()
         {
             string id = m_entity.EntityId;
             m_queryServiceMock.Setup(x => x.FindByIdAsync<TestEntity>(id)).ReturnsAsync(null);

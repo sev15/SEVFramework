@@ -50,7 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DIContainerExtentions.cs" />
+    <Compile Include="DIContainerExtensions.cs" />
     <Compile Include="RelationshipManager\EFCreateRelationshipManager.cs" />
     <Compile Include="RelationshipManager\EFDeleteRelationshipManager.cs" />
     <Compile Include="RelationshipManager\EFRelationshipManager.cs" />

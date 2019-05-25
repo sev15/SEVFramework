@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.FWK.Service.Tests
 {
@@ -14,7 +15,7 @@ namespace SEV.FWK.Service.Tests
         private const int ParentId = 1;
 
         [Test]
-        public async void WhenExecuteReadAsyncQuery_ThenShouldReturnFullCollectionForRequestedEntity()
+        public async Task WhenExecuteReadAsyncQuery_ThenShouldReturnFullCollectionForRequestedEntity()
         {
             var service = ServiceLocator.Current.GetInstance<IQueryService>();
 
@@ -25,7 +26,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenIncludesAreSpecified_WhenExecuteReadAsyncQuery_ThenShouldReturnFullCollectionForRequestedEntityWithLoadedIncludes()
+        public async Task GivenIncludesAreSpecified_WhenExecuteReadAsyncQuery_ThenShouldReturnFullCollectionForRequestedEntityWithLoadedIncludes()
         {
             Expression<Func<TestEntity, object>> include = x => x.Parent;
             var service = ServiceLocator.Current.GetInstance<IQueryService>();
@@ -43,7 +44,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void WhenExecuteFindByIdAsyncQuery_ThenShouldReturnEntityWithRequestedId()
+        public async Task WhenExecuteFindByIdAsyncQuery_ThenShouldReturnEntityWithRequestedId()
         {
             var service = ServiceLocator.Current.GetInstance<IQueryService>();
 
@@ -55,7 +56,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenIncludesAreSpecified_WhenExecuteFindByIdAsyncQuery_ThenShouldReturnEntityWithRequestedIdWithLoadedIncludes()
+        public async Task GivenIncludesAreSpecified_WhenExecuteFindByIdAsyncQuery_ThenShouldReturnEntityWithRequestedIdWithLoadedIncludes()
         {
             var service = ServiceLocator.Current.GetInstance<IQueryService>();
 
@@ -68,7 +69,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void WhenExecuteFindByIdListAsyncQuery_ThenShouldReturnCollectionOfEntitiesWithRequestedIdList()
+        public async Task WhenExecuteFindByIdListAsyncQuery_ThenShouldReturnCollectionOfEntitiesWithRequestedIdList()
         {
             var service = ServiceLocator.Current.GetInstance<IQueryService>();
             const int count = 3;
@@ -87,7 +88,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenIncludesAreSpecified_WhenExecuteFindByIdListAsyncQuery_ThenShouldReturnCollectionOfEntitiesWithRequestedIdListWithLoadedIncludes()
+        public async Task GivenIncludesAreSpecified_WhenExecuteFindByIdListAsyncQuery_ThenShouldReturnCollectionOfEntitiesWithRequestedIdListWithLoadedIncludes()
         {
             const int count = 3;
             var idList = Enumerable.Range(3, count).Select(x => x.ToString()).ToList();
@@ -105,7 +106,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenQueryFilterIsSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQueryFilter()
+        public async Task GivenQueryFilterIsSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQueryFilter()
         {
             var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
             const string filter = "4";
@@ -119,7 +120,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenQueryFilterAndIncludesAreSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQueryFilterWithLoadedIncludes()
+        public async Task GivenQueryFilterAndIncludesAreSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQueryFilterWithLoadedIncludes()
         {
             var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
             const string filter = "4";
@@ -134,7 +135,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenOrderingAndPagingAreSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQuerySettings()
+        public async Task GivenOrderingAndPagingAreSpecified_WhenExecuteFindByQueryAsyncQuery_ThenShouldReturnCollectionOfEntitiesSatisfyingQuerySettings()
         {
             var query = ServiceLocator.Current.GetInstance<IQuery<TestEntity>>();
             const int size = 5;
@@ -155,7 +156,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void WhenExecuteCreateAsyncQuery_ThenShouldReturnEntityWithInitializedId()
+        public async Task WhenExecuteCreateAsyncQuery_ThenShouldReturnEntityWithInitializedId()
         {
             const string testValue = "Create Test";
             var service = ServiceLocator.Current.GetInstance<ICommandService>();
@@ -168,7 +169,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void GivenParentIsSpecified_WhenExecuteCreateAsyncQuery_ThenShouldReturnEntityLinkedToParentEntity()
+        public async Task GivenParentIsSpecified_WhenExecuteCreateAsyncQuery_ThenShouldReturnEntityLinkedToParentEntity()
         {
             const string testValue = "Create Test 2";
             var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
@@ -184,7 +185,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void WhenExecuteDeleteAsyncQuery_ThenShouldDeleteProvidedEntity()
+        public async Task WhenExecuteDeleteAsyncQuery_ThenShouldDeleteProvidedEntity()
         {
             string id = (ChildCount - 1).ToString();
             var queryService = ServiceLocator.Current.GetInstance<IQueryService>();
@@ -198,7 +199,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void WhenExecuteUpdateAsyncQuery_ThenShouldUpdateProvidedEntity()
+        public async Task WhenExecuteUpdateAsyncQuery_ThenShouldUpdateProvidedEntity()
         {
             string id = (ParentId + 1).ToString();
             const string updated = "Update Test";

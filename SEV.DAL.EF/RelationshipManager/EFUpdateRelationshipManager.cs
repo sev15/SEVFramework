@@ -11,17 +11,15 @@ namespace SEV.DAL.EF
 {
     internal class EFUpdateRelationshipManager<TEntity> : EFRelationshipManager<TEntity> where TEntity : Entity
     {
+        private Dictionary<int, Entity> m_currentChildren;
+
         public EFUpdateRelationshipManager(IDbContext context, IReferenceContainer container)
             : base(context, container)
         {
+            AttachEntity = true;
         }
 
-        public override void PrepareRelationships(TEntity entity)
-        {
-            ArrangeRelationships(entity, true);
-        }
-
-        protected override void ArrangeEntityRelationship(PropertyInfo propInfo, TEntity entity, DbContext dbContext)
+        protected override void ArrangeEntityRelationship(PropertyInfo propInfo, Entity entity, DbContext dbContext)
         {
             string propName = propInfo.Name;
             var relatedEntity = (Entity)propInfo.GetValue(entity);
@@ -29,7 +27,7 @@ namespace SEV.DAL.EF
             var stateManager = ((IObjectContextAdapter)dbContext).ObjectContext.ObjectStateManager;
             var parentRelationship = stateManager.GetRelationshipManager(entity).GetAllRelatedEnds()
                                                  .OfType<EntityReference>()
-                                                 .First(re => re.RelationshipName.Contains(propName));
+                                                 .First(re => re.RelationshipName.EndsWith(propName));
             // TODO : verify how we could check if a relationship was loaded, especially when this relationship is removed.
             if (relatedEntity != null)
             {
@@ -52,7 +50,9 @@ namespace SEV.DAL.EF
                     var targetEntity = (Entity)propInfo.GetValue(entity);
                     stateManager.ChangeRelationshipState(entity, targetEntity, propName, EntityState.Deleted);
                     stateManager.ChangeRelationshipState(entity, relatedEntity, propName, EntityState.Added);
+                    return;
                 }
+                stateManager.ChangeRelationshipState(entity, relatedEntity, propName, EntityState.Unchanged);
             }
             else if (parentRelationshipId.HasValue)
             {
@@ -61,49 +61,62 @@ namespace SEV.DAL.EF
             }
         }
 
-        protected override void ArrangeChildCollection(PropertyInfo propInfo, TEntity entity, DbContext dbContext)
+        protected override void ArrangeChildCollection(KeyValuePair<PropertyInfo, ICollection> collectionInfo,
+            TEntity entity, DbContext dbContext)
         {
-            var propValue = propInfo.GetValue(entity);
-            DbSet childDbSet = GetChildDbSet(dbContext, propValue);
-
-            var children = (IList)propValue;
-            var curChildren = new Dictionary<int, Entity>();
+            m_currentChildren = new Dictionary<int, Entity>();
             var newChildren = new List<Entity>();
-            foreach (var child in children)
+            foreach (var child in collectionInfo.Value)
             {
                 var childEntity = (Entity)child;
                 if (childEntity.Id == default(int))
                 {
-                    childDbSet.Add(childEntity);
                     newChildren.Add(childEntity);
                 }
                 else
                 {
-                    curChildren.Add(childEntity.Id, childEntity);
+                    m_currentChildren.Add(childEntity.Id, childEntity);
                 }
             }
-            children.Clear();
 
-            dbContext.Entry(entity).Collection(propInfo.Name).Load();
-            children = (IList)propInfo.GetValue(entity);
-            var oldChildren = new Entity[children.Count];
-            children.CopyTo(oldChildren, 0);
+            DbSet childDbSet = GetChildDbSet(dbContext, collectionInfo.Value);
+            dbContext.Entry(entity).Collection(collectionInfo.Key.Name).Load();
+            var oldChildren = ((IEnumerable<Entity>)collectionInfo.Key.GetValue(entity)).ToArray();
 
             foreach (var child in oldChildren)
             {
-                if (curChildren.ContainsKey(child.Id))
+                if (m_currentChildren.ContainsKey(child.Id))
                 {
-                    dbContext.Entry(child).State = EntityState.Modified;
+                    dbContext.Entry(child).State = EntityState.Detached;
+                    var currentChild = m_currentChildren[child.Id];
+                    childDbSet.Attach(currentChild);
+                    dbContext.Entry(currentChild).State = EntityState.Modified;
+                    ArrangeChildRelationships(currentChild);
                 }
                 else
                 {
+                    ArrangeChildRelationships(child);
                     childDbSet.Remove(child);
                 }
             }
+            collectionInfo.Key.SetValue(entity, collectionInfo.Value);
 
             foreach (var newChild in newChildren)
             {
-                children.Add(newChild);
+                ArrangeChildRelationships(newChild);
+                childDbSet.Add(newChild);
+            }
+        }
+
+        protected override void ArrangeChildRelationship(PropertyInfo propInfo, Entity entity, DbContext dbContext)
+        {
+            if (m_currentChildren.ContainsKey(entity.Id))
+            {
+                ArrangeEntityRelationship(propInfo, entity, dbContext);
+            }
+            else
+            {
+                base.ArrangeEntityRelationship(propInfo, entity, dbContext);
             }
         }
     }

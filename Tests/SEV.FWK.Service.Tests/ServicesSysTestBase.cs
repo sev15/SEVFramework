@@ -14,18 +14,22 @@ namespace SEV.FWK.Service.Tests
 {
     public class ServicesSysTestBase
     {
-        protected const int ChildCount = 7;
+        protected const int ChildCount = 5;
         protected const string ChildValue = "Child";
+
+        [TestFixtureSetUp]
+        public void test()
+        {
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(@"..\.."));
+        }
 
         [SetUp]
         public virtual void Init()
         {
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(@"..\.."));
-
             var diConfiguration = DIConfiguration.Create(new LightInjectContainerFactory());
             IDIContainer container = diConfiguration.CreateDIContainer();
             container.RegisterDomainServices();
-            container.RegisterAplicationServices();
+            container.RegisterApplicationServices();
             container.Register<IDbContext, TestDbContext>();
 
             ServiceLocator.SetLocatorProvider(() => diConfiguration.CreateServiceLocator(container));
@@ -38,7 +42,16 @@ namespace SEV.FWK.Service.Tests
             var context = (TestDbContext)ServiceLocator.Current.GetInstance<IDbContext>();
             context.Database.ExecuteSqlCommand("DELETE FROM TestEntity;");
             context.Database.ExecuteSqlCommand("DBCC CHECKIDENT('TestEntity', RESEED, 0)");
+            context.Database.ExecuteSqlCommand("DELETE FROM TestCategory;");
+            context.Database.ExecuteSqlCommand("DBCC CHECKIDENT('TestCategory', RESEED, 0)");
             context.TestEntities.AddOrUpdate(p => p.Value, new TestEntity { Value = "Parent" });
+            var categories = Enumerable.Range(1, 3)
+                .Select(x => new TestCategory
+                {
+                    Name = "Category " + x,
+                    Comments = "Comments category " + x
+                }).ToArray();
+            context.TestCategories.AddOrUpdate(p => p.Name, categories);
             context.SaveChanges();
             var parentEntity = context.TestEntities.Single();
             var entities = Enumerable.Range(1, ChildCount)

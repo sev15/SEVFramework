@@ -42,7 +42,7 @@ namespace SEV.Service.Tests
         #endregion
 
         [Test]
-        public void WhenCallValidateEntity_ThenShouldValitateValidationAttributes()
+        public void WhenCallValidateEntity_ThenShouldValidateValidationAttributes()
         {
             m_entity.Value = null;
 

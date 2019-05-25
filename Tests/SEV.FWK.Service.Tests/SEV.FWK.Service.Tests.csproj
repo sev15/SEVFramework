@@ -75,6 +75,10 @@
     <Compile Include="Migrations\201603301650556_InitialCreate.Designer.cs">
       <DependentUpon>201603301650556_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201904271813523_AddTestCategory.cs" />
+    <Compile Include="Migrations\201904271813523_AddTestCategory.Designer.cs">
+      <DependentUpon>201904271813523_AddTestCategory.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="SyncAsyncServicesPerformanceTests.cs" />
     <Compile Include="SEVServicesAsyncTests.cs" />
@@ -85,7 +89,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +144,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201603301650556_InitialCreate.resx">
       <DependentUpon>201603301650556_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201904271813523_AddTestCategory.resx">
+      <DependentUpon>201904271813523_AddTestCategory.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

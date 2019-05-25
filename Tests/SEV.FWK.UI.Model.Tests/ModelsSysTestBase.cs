@@ -19,15 +19,19 @@ namespace SEV.FWK.Service.Tests
         protected const int ChildCount = 7;
         protected const string ChildValue = "Child";
 
+        [TestFixtureSetUp]
+        public void test()
+        {
+            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(@"..\.."));
+        }
+
         [SetUp]
         public virtual void Init()
         {
-            AppDomain.CurrentDomain.SetData("DataDirectory", Path.GetFullPath(@"..\.."));
-
             var diConfiguration = DIConfiguration.Create(new LightInjectContainerFactory());
             IDIContainer container = diConfiguration.CreateDIContainer();
             container.RegisterDomainServices();
-            container.RegisterAplicationServices();
+            container.RegisterApplicationServices();
             container.Register<IDbContext, TestDbContext>();
             container.Register<IParentEntityFilterProvider, ParentEntityFilterProvider>();
             container.Register<ITestModel, TestModel>();

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.Service.Tests
 {
@@ -390,7 +391,7 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public async void WhenCallReadAsync_ThenShouldReturnEntityCollectionProvidedByAllAsyncQuery()
+        public async Task WhenCallReadAsync_ThenShouldReturnEntityCollectionProvidedByAllAsyncQuery()
         {
             var entities = new[] { new Mock<Entity>().Object };
             m_repositoryMock.Setup(x => x.AllAsync()).ReturnsAsync(entities);
@@ -421,7 +422,7 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public async void WhenCallFindByIdAsync_ThenShouldReturnEntityProvidedByEntityRepository()
+        public async Task WhenCallFindByIdAsync_ThenShouldReturnEntityProvidedByEntityRepository()
         {
             var entity = new Mock<Entity>().Object;
             m_repositoryMock.Setup(x => x.GetByIdAsync(TEST_ID)).ReturnsAsync(entity);
@@ -453,7 +454,7 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public async void WhenCallFindByIdListAsync_ThenShouldReturnEntitiesProvidedByGetByIdListAsyncQuery()
+        public async Task WhenCallFindByIdListAsync_ThenShouldReturnEntitiesProvidedByGetByIdListAsyncQuery()
         {
             var entities = new Entity[0];
             m_repositoryMock.Setup(x => x.GetByIdListAsync(It.IsAny<IList<object>>())).ReturnsAsync(entities);
@@ -524,7 +525,7 @@ namespace SEV.Service.Tests
         }
 
         [Test]
-        public async void WhenCallFindByQueryAsync_ThenShouldReturnEntityCollectionProvidedByBuildQuery()
+        public async Task WhenCallFindByQueryAsync_ThenShouldReturnEntityCollectionProvidedByBuildQuery()
         {
             var queryBuilderMock = new Mock<IQueryBuilder<Entity>>();
             m_repositoryMock.Setup(x => x.Query()).Returns(new RepositoryQuery<Entity>(queryBuilderMock.Object));

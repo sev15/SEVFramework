@@ -65,7 +65,7 @@ namespace SEV.FWK.Service.Tests
         }
 
         [Test]
-        public async void SyncAsyncServicesTest()
+        public async Task SyncAsyncServicesTest()
         {
             for (int count = 0; count < TestCount1; count++)
             {

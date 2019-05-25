@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace SEV.UI.Model.Tests
 {
@@ -121,7 +122,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void WhenCallLoadAsync_ThenShouldCallReadAsyncOfQueryService()
+        public async Task WhenCallLoadAsync_ThenShouldCallReadAsyncOfQueryService()
         {
             await m_model.LoadAsync();
 
@@ -129,7 +130,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void WhenCallLoadAsync_ThenShouldInitializeModelItems()
+        public async Task WhenCallLoadAsync_ThenShouldInitializeModelItems()
         {
             m_queryServiceMock.Setup(x => x.ReadAsync<TestEntity>()).ReturnsAsync(new List<TestEntity> { m_entity });
 
@@ -229,7 +230,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldCallFindByQueryAsyncOfQueryService()
+        public async Task GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldCallFindByQueryAsyncOfQueryService()
         {
             m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             var queryMock = new Mock<IQuery<TestEntity>>();
@@ -241,7 +242,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public async void GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldInitializeModelItems()
+        public async Task GivenParentEntityExpressionAndParentEntityFilterProviderAreInitialized_WhenCallLoadByIdAsync_ThenShouldInitializeModelItems()
         {
             m_model = new TestListModel(m_queryServiceMock.Object, m_filterProviderMock.Object);
             var queryMock = new Mock<IQuery<TestEntity>>();

@@ -1,6 +1,8 @@
 ﻿using SEV.Domain.Model;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data.Entity;
+using System.Linq;
 using System.Reflection;
 
 namespace SEV.DAL.EF
@@ -10,26 +12,19 @@ namespace SEV.DAL.EF
         public EFDeleteRelationshipManager(IDbContext context, IReferenceContainer container)
             : base(context, container)
         {
+            AttachEntity = true;
         }
 
-        public override void PrepareRelationships(TEntity entity)
+        protected override void ArrangeChildCollection(KeyValuePair<PropertyInfo, ICollection> collectionInfo,
+            TEntity entity, DbContext dbContext)
         {
-            ArrangeRelationships(entity, true);
-        }
-
-        protected override void ArrangeChildCollection(PropertyInfo propInfo, TEntity entity, DbContext dbContext)
-        {
-            var propValue = propInfo.GetValue(entity);
-            DbSet childDbSet = GetChildDbSet(dbContext, propValue);
-            ((IList)propValue).Clear();
-
-            dbContext.Entry(entity).Collection(propInfo.Name).Load();
-            var children = (IList)propInfo.GetValue(entity);
-            var oldChildren = new Entity[children.Count];
-            children.CopyTo(oldChildren, 0);
+            DbSet childDbSet = GetChildDbSet(dbContext, collectionInfo.Value);
+            dbContext.Entry(entity).Collection(collectionInfo.Key.Name).Load();
+            var oldChildren = ((IEnumerable<Entity>)collectionInfo.Key.GetValue(entity)).ToArray();
 
             foreach (var child in oldChildren)
             {
+                ArrangeChildRelationships(child);
                 childDbSet.Remove(child);
             }
         }

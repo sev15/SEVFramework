@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 [assembly: Guid("d61790e8-7784-4552-9f8d-15a58bc47446")]
-[assembly: AssemblyVersion("0.5.0.0")]
-[assembly: AssemblyFileVersion("0.5.0.0")]
+[assembly: AssemblyVersion("0.5.0.1")]
+[assembly: AssemblyFileVersion("0.5.0.1")]
 
 [assembly: InternalsVisibleTo("SEV.DI.LightInject.Tests")]

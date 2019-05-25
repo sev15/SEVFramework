@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandServiceTests.cs" />
-    <Compile Include="DIContainerExtentionsTests.cs" />
+    <Compile Include="DIContainerExtensionsTests.cs" />
     <Compile Include="QueryServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValidationServiceTests.cs" />

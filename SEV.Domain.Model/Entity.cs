@@ -27,7 +27,7 @@ namespace SEV.Domain.Model
             {
                 return false;
             }
-            return Id == (obj as Entity).Id;
+            return Id == ((Entity)obj).Id;
         }
 
         public override int GetHashCode()

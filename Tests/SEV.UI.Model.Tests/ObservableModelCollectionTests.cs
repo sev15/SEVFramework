@@ -52,7 +52,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void WhenAddModel_ThenShouldAddModelEntityInUderlyingEntityCollection()
+        public void WhenAddModel_ThenShouldAddModelEntityInUnderlyingEntityCollection()
         {
             var entity = new TestEntity { Id = 123 };
             var model = CreateModel(entity);
@@ -72,7 +72,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void WhenRemoveModel_ThenShouldRemoveModelEntityFromUderlyingEntityCollection()
+        public void WhenRemoveModel_ThenShouldRemoveModelEntityFromUnderlyingEntityCollection()
         {
             var entity = new TestEntity { Id = 123 };
             var model = CreateModel(entity);
@@ -84,7 +84,7 @@ namespace SEV.UI.Model.Tests
         }
 
         [Test]
-        public void WhenCallClear_ThenShouldClearUderlyingEntityCollection()
+        public void WhenCallClear_ThenShouldClearUnderlyingEntityCollection()
         {
             m_observableCollection.Add(CreateModel(new TestEntity { Id = 123 }));
             m_observableCollection.Add(CreateModel(new TestEntity { Id = 456 }));

@@ -6,6 +6,7 @@ using SEV.UI.Model;
 using SEV.UI.Model.Contract;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SEV.FWK.UI.Model.Tests
@@ -100,9 +101,10 @@ namespace SEV.FWK.UI.Model.Tests
             model.Save();
 
             string id = (ChildCount + 2).ToString();
-            var newEntity = ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id);
-            Assert.That(newEntity, Is.Not.Null);
-            Assert.That(newEntity.Value, Is.EqualTo(testValue));
+            var testModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            testModel.Load(id);
+            Assert.That(testModel.IsValid, Is.True);
+            Assert.That(testModel.Value, Is.EqualTo(testValue));
         }
 
         [Test]
@@ -120,12 +122,12 @@ namespace SEV.FWK.UI.Model.Tests
 
             model.Save();
 
-            var updatedEntity =
-                        ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id, x => x.Parent);
-            Assert.That(updatedEntity, Is.Not.Null);
-            Assert.That(updatedEntity.Value, Is.EqualTo(updated));
-            Assert.That(updatedEntity.Parent, Is.Not.Null);
-            Assert.That(updatedEntity.Parent.Id, Is.EqualTo(ParentId));
+            var testModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            testModel.Load(id);
+            Assert.That(testModel.IsValid, Is.True);
+            Assert.That(testModel.Value, Is.EqualTo(updated));
+            Assert.That(testModel.Parent, Is.Not.Null);
+            Assert.That(testModel.Parent.Id, Is.EqualTo(ParentId.ToString()));
         }
 
         [Test]
@@ -139,8 +141,64 @@ namespace SEV.FWK.UI.Model.Tests
 
             model.Delete();
 
-            var deletedEntity = ServiceLocator.Current.GetInstance<IQueryService>().FindById<TestEntity>(id);
-            Assert.That(deletedEntity, Is.Null);
+            var testModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            testModel.Load(id);
+            Assert.That(testModel.IsValid, Is.False);
+        }
+
+        [Test]
+        public void GivenModelEntityIsAggregateRoot_WhenCreateModelEntity_ThenShouldCreateChildModelEntities()
+        {
+            const int count = 3;
+            const string testValue = "New Test Parent";
+            var parentModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            parentModel.New();
+            parentModel.Value = testValue;
+            Enumerable.Range(1, count).Select(x =>
+            {
+                var model = ServiceLocator.Current.GetInstance<ITestModel>();
+                model.New();
+                model.Value = "New Child " + x;
+                return model;
+            }).ToList().ForEach(c => parentModel.Children.Add(c));
+
+            parentModel.Save();
+
+            var testModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            testModel.Load(parentModel.Id);
+            Assert.That(testModel.IsValid, Is.True);
+            Assert.That(testModel.Children.Count, Is.EqualTo(count));
+        }
+
+        [Test]
+        public void GivenModelEntityIsAggregateRoot_WhenDeleteModel_ThenShouldDeleteChildEntities()
+        {
+            var parentModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            parentModel.Load(ParentId.ToString());
+
+            parentModel.Delete();
+
+            var testModel = ServiceLocator.Current.GetInstance<ITestListModel>();
+            testModel.Load();
+            Assert.That(testModel.IsValid, Is.True);
+            Assert.That(testModel.Items.Any(), Is.False);
+        }
+
+        [Test]
+        public void GivenModelEntityIsAggregateRootAndChildModelIsRemoved_WhenUpdateModel_ThenShouldDeleteChildEntity()
+        {
+            var parentModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            parentModel.Load(ParentId.ToString());
+            int childrenCount = parentModel.Children.Count;
+            var childModel = parentModel.Children.First();
+            parentModel.Children.Remove(childModel);
+
+            parentModel.Save();
+
+            var testModel = ServiceLocator.Current.GetInstance<ITestModel>();
+            testModel.Load(ParentId.ToString());
+            Assert.That(testModel.IsValid, Is.True);
+            Assert.That(testModel.Children.Count, Is.EqualTo(childrenCount - 1));
         }
     }
 

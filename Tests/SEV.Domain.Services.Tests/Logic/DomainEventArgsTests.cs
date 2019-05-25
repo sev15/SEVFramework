@@ -1,7 +1,6 @@
 ﻿using Moq;
 using NUnit.Framework;
 using SEV.Domain.Model;
-using SEV.Domain.Services.Validation;
 
 namespace SEV.Domain.Services.Logic.Tests
 {

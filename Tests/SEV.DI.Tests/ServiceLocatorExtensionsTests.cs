@@ -28,7 +28,7 @@ namespace SEV.DI.Tests
          }
 
         [Test]
-        public void GivenServiceKeyIsSpecifed_WhenCallResolve_ThenShouldCallGetInstanceOfServiceLocatorWithSpecifedKey()
+        public void GivenServiceKeyIsSpecified_WhenCallResolve_ThenShouldCallGetInstanceOfServiceLocatorWithProvidedKey()
         {
             const string key = "test key";
 
